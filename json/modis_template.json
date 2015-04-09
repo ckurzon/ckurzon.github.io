@@ -1,0 +1,135 @@
+/*
+modis_template.json
+
+An example of what the modis template will look like.
+Generate a recusive treemap
+Most higher level tile, has no zoom (hence most aggregated)
+
+This is statis for one time frame
+If we want to introduce many time frames, we can create another
+json element called years
+
+For example,
+{
+  years: [
+    { time_sample_1 : mapping_1},
+    { time_sample_2 : mapping_2},
+    ...
+  ]
+}
+
+Below is just for one time sample, corrsponding to a single mapping
+*/
+
+{
+  "zoom": 0,
+  "coord" : [0,0],
+  "height": 1024,               //Resolution will be 1024 X 1024 for each tile
+  "width": 1024,
+  "minlatlon" : [0,0],
+  "maxlatlon" : [1024, 1024],
+  "modis": [
+    { "lon" : 0,
+      "lat" : 0,
+      "avg_nsdi" : 0.5,
+      "min_nsdi" : -1,
+      "max_nsdi" : 1,
+      "count_nsdi" : 100,
+      "mask" : 0
+    },
+    {}, {}, {}, {}, {}          // ... 1024 X 1024 entries
+  ],
+  "subtiles": [                 //Subdivide each tile - 4 entries
+    {
+      "zoom": 1,
+      "coord" : [0,0],
+      "height": 1024,
+      "width": 1024,
+      "minlatlon" : [0,0],
+      "maxlatlon" : [512, 512],
+      "modis": [
+        { "lon" : 0,
+          "lat" : 0,
+          "avg_nsdi" : 0.5,
+          "min_nsdi" : -1,
+          "max_nsdi" : 1,
+          "count_nsdi" : 100,
+          "mask" : 0
+        },
+        {}, {}, {}, {}, {}        // ... 1024 X 1024 entries
+      ],
+      "subtiles": [               //Subdivide each tile - 4 entries
+        {
+          "zoom": 2,
+          "coord" : [0,0],
+          "height": 1024,
+          "width": 1024,
+          "minlatlon" : [0,0],
+          "maxlatlon" : [1024, 1024],
+          "modis": [ {}, {}, {}, {}, {}, {} ], // ... 1024 X 1024 entries
+          "subtiles": [{}, {}, {}, {} ]        //Subdivide each tile - 4 entries
+        },
+        {}, {}, {}]
+    },
+    {
+      "zoom": 1,
+      "coord" : [0,1],
+      "height": 1024,
+      "width": 1024,
+      "minlatlon" : [0,512],
+      "maxlatlon" : [512, 1024],
+      "modis": [
+        { "lon" : 0,
+          "lat" : 512,
+          "avg_nsdi" : 0.5,
+          "min_nsdi" : -1,
+          "max_nsdi" : 1,
+          "count_nsdi" : 100,
+          "mask" : 0
+        },
+        {}, {}, {}, {}, {}          // ... 1024 X 1024 entries
+      ],
+      "subtiles": [{}, {}, {}, {} ] //Subdivide each tile - 4 entries
+    },
+    {
+      "zoom": 1,
+      "coord" : [1,0],
+      "height": 1024,
+      "width": 1024,
+      "minlatlon" : [512,0],
+      "maxlatlon" : [1024, 512],
+      "modis": [
+        { "lon" : 512,
+          "lat" : 0,
+          "avg_nsdi" : 0.5,
+          "min_nsdi" : -1,
+          "max_nsdi" : 1,
+          "count_nsdi" : 100,
+          "mask" : 0
+        },
+        {}, {}, {}, {}, {}          // ... 1024 X 1024 entries
+      ],
+      "subtiles": [{}, {}, {}, {} ] //Subdivide each tile - 4 entries
+    },
+    {
+      "zoom": 1,
+      "coord" : [1,1],
+      "height": 1024,
+      "width": 1024,
+      "minlatlon" : [512,512],
+      "maxlatlon" : [1024, 1024],
+      "modis": [
+        { "lon" : 512,
+          "lat" : 512,
+          "avg_nsdi" : 0.5,
+          "min_nsdi" : -1,
+          "max_nsdi" : 1,
+          "count_nsdi" : 100,
+          "mask" : 0
+        },
+        {}, {}, {}, {}, {}          // ... 1024 X 1024 entries
+      ],
+      "subtiles": [{}, {}, {}, {} ] //Subdivide each tile - 4 entries
+    }
+  ]
+}
