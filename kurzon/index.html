@@ -35,7 +35,7 @@ var width = 960,
 var rateById = d3.map();
 
 var quantize = d3.scale.quantize()
-    .domain([0, 1])
+    .domain([0, .15])
     .range(d3.range(9).map(function(i) { return "q" + i + "-9"; }));
 
 var projection = d3.geo.albersUsa()
@@ -51,7 +51,7 @@ var svg = d3.select("body").append("svg")
 
 queue()
     .defer(d3.json, "../us.json")
-    .defer(d3.csv, "../01-2015-dlysnfl.csv", function(d) { rateById.set(d.id, +d.snow_fall); })
+    .defer(d3.csv, "../01-2015-dlysnfl.csv", function(d) { rateById.set(d.id, (+d.snow_fall)/10.0); })
     .await(ready);
 
 function ready(error, us) {
