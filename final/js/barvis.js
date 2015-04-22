@@ -162,9 +162,11 @@ BarVis.prototype.updateVis = function(){
  * be defined here.
  * @param selection
  */
-BarVis.prototype.onSelectionChange = function (selectionStart, selectionEnd){
+BarVis.prototype.onSelectionChange = function (state){
 
     // TODO: call wrangle function
+
+    this.wrangleData(function(d){ return d.State == state;});
 
     this.updateVis();
 }
