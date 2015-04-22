@@ -94,7 +94,8 @@
 
 <div class="container">
     <div class="row">
-        <div class="col-md-1" id="timeVis"> Time Container
+        <div class="col-md-1" id="sliderVis">
+            Time: 2005 <input type="range" name="points" min="2005" max="2015" step="1" value="0" id="slider-time" oninput="year_value();"> 2015
         </div>
         <div class="col-md-9" id="mapVis"> Map Container
         </div>
@@ -126,15 +127,17 @@
             console.log(snow_data);
             //TODO: Instantiate all Vis Objects here
             //var age_vis = new AgeVis(d3.select("#ageVis"), allData, metaData, MyEventHandler);
-            var map_vis = new MapVis(d3.select("#mapVis"),us_data,fips_data,snow_data, MyEventHandler);
+
+            var map_vis = new MapVis(d3.select("#mapVis"),us_data,snow_data, MyEventHandler);
             var bar_vis = new BarVis(d3.select("#barVis"),snow_data, MyEventHandler);
 
             // TODO: bind the eventHandler to the Vis Objects
             // events will be created from the CountVis object (nothing to do here)
             // events will be consumed by the PrioVis and AgeVis object (binding should happen here)
-            $(MyEventHandler).bind("selectionChanged", function(event, county){
-                bar_vis.onSelectionChange(county);
+            $(MyEventHandler).bind("selectionChanged", function(event, fips){
+                bar_vis.onSelectionChange(fips);
             });
+
         }
 
         console.log("loading files");
@@ -152,9 +155,31 @@
                 return;
             }
 
+            var fipsMappingByCounty = d3.map();
+
+            //FIPS
+            for (var i=0; i<fips["table"]["rows"].length; i++){
+                fipsMappingByCounty.set( fips["table"]["rows"][i][1].toUpperCase(), parseInt(fips["table"]["rows"][i][0], 10));
+            }
+            console.log("Done fips map");
+
+
+            for (var i=0; i<snfl.length; i++){
+                var stateCountyID = snfl[i].state + ", " + snfl[i].county;
+                var countyFipsID = fipsMappingByCounty.get(stateCountyID);
+                if (countyFipsID == undefined){
+                    snfl[i]["fips"] = '';
+                }
+                else{
+                    snfl[i]["fips"] = parseInt(fipsMappingByCounty.get(stateCountyID), 10);
+                }
+            }
+
             us_data = us;
-            fips_data = fips;
             snow_data = snfl;
+
+            console.log(snow_data[0]);
+
             initVis();
         }
 
