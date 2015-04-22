@@ -25,6 +25,7 @@
 
 </style>
 <body>
+Time: 2005 <input type="range" name="points" min="2005" max="2015" step="1" value="0" id="slider-time" oninput="year_value();"> 2015
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script src="http://d3js.org/topojson.v1.min.js"></script>
 <script src="http://d3js.org/d3.v3.min.js"></script>
@@ -34,11 +35,13 @@
   </form>
 <script>
 
-var days = ["day1", "day2", "day3", "day4", "day5", "day6", "day7", "day8", "day9", "day10", "day11", "day12", "day13", "day14", "day15", "day16", "day17", "day18", "day19", "day20", "day21", "day22", "day23", "day24", "day25", "day26", "day27", "day28", "day29", "day30", "day31"]
-
 var downloaded_data;
 
 var states = [];
+
+var county_state_list = [];
+var aggregate_list = [];
+var listed = false;
 
 var width = 960,
     height = 500;
@@ -62,13 +65,40 @@ var svg = d3.select("body").append("svg")
     .attr("width", width)
     .attr("height", height);
 
+function year_value(data) {
+    d3.selectAll("input").each(function(d) {
+        if(d3.select(this).attr("type") == "range") {
+            year = (this).value;
+        }
+    })
+    by_year(year);
+};
+
 svg.append("path")
     .datum(graticule)
     .attr("class", "graticule")
     .attr("d", path);
 
-d3.tsv("../data/sndpth.tsv", function(error, data) {
-  downloaded_data = data;
+d3.tsv("data/sndpth.tsv", function(error, data) {
+  data.forEach(function(d) {
+      for (j = 0; j < county_state_list.length; j++) {
+        if (county_state_list[j] == d.county + " " + d.state) {
+          listed = true;
+        }
+      }
+      if (!listed) {
+        county_state_list[county_state_list.length] = d.county + " " + d.state;
+      }
+      listed = false;
+  });
+
+    downloaded_data = data;
+    console.log(county_state_list);
+  for (k = 0; k < county_state_list.length; k++) {
+    aggregate_list[k] = {county: county_state_list[k], accumulation: 0};
+  } 
+  console.log(aggregate_list);
+
   d3.select("input[value=\"by_state\"]").on("click", by_state);
 }); 
 
@@ -88,20 +118,135 @@ d3.json("data/us.json", function(error, us) {
 
 d3.select(self.frameElement).style("height", height + "px");
 
-function by_state(state, county, month) {
-  console.log(state);
-  console.log(county);
-  var aggregate = 0;
-  count = 0;
-  for (i = 0; i < 10000; i++) {
-    if (downloaded_data[i].state === state && downloaded_data[i].county === county && downloaded_data[i].month === month) {
-       states[i] = downloaded_data[i];
-       count = count + 1;
+function by_year(year) {
+  var str_year = year.toString();
+  var list = [];
+  var county_state_list = [];
+  var listcount = 0;
+  console.log(year);
+  for (i = 0; i < downloaded_data.length; i++) {
+    if (downloaded_data[i].year == str_year) {
+      list[listcount] = downloaded_data[i];
+      listcount = listcount + 1;
     }
   }
-  console.log(count);
+  for (i = 0; i < list.length; i++) {
+    for (j = 0; j < aggregate_list.length; j++) {
+      if (aggregate_list[j].county == list[i].county + " " + list[i].state) {
+        if (parseInt(list[i].day1) > 0) {
+          aggregate_list[j].accumulation = aggregate_list[j].accumulation + parseInt(list[i].day1);
+        }
+        if (parseInt(list[i].day2) > 0) {
+          aggregate_list[j].accumulation = aggregate_list[j].accumulation + parseInt(list[i].day2);
+        }
+        if (parseInt(list[i].day3) > 0) {
+          aggregate_list[j].accumulation = aggregate_list[j].accumulation + parseInt(list[i].day3);
+        }
+        if (parseInt(list[i].day4) > 0) {
+          aggregate_list[j].accumulation = aggregate_list[j].accumulation + parseInt(list[i].day4);
+        }
+        if (parseInt(list[i].day5) > 0) {
+          aggregate_list[j].accumulation = aggregate_list[j].accumulation + parseInt(list[i].day5);
+        }
+        if (parseInt(list[i].day6) > 0) {
+          aggregate_list[j].accumulation = aggregate_list[j].accumulation + parseInt(list[i].day6);
+        }
+        if (parseInt(list[i].day7) > 0) {
+          aggregate_list[j].accumulation = aggregate_list[j].accumulation + parseInt(list[i].day7);
+        }
+        if (parseInt(list[i].day8) > 0) {
+          aggregate_list[j].accumulation = aggregate_list[j].accumulation + parseInt(list[i].day8);
+        }
+        if (parseInt(list[i].day9) > 0) {
+          aggregate_list[j].accumulation = aggregate_list[j].accumulation + parseInt(list[i].day9);
+        }
+        if (parseInt(list[i].day10) > 0) {
+          aggregate_list[j].accumulation = aggregate_list[j].accumulation + parseInt(list[i].day10);
+        }
+        if (parseInt(list[i].day11) > 0) {
+          aggregate_list[j].accumulation = aggregate_list[j].accumulation + parseInt(list[i].day11);
+        }
+        if (parseInt(list[i].day12) > 0) {
+          aggregate_list[j].accumulation = aggregate_list[j].accumulation + parseInt(list[i].day12);
+        }
+        if (parseInt(list[i].day13) > 0) {
+          aggregate_list[j].accumulation = aggregate_list[j].accumulation + parseInt(list[i].day13);
+        }
+        if (parseInt(list[i].day14) > 0) {
+          aggregate_list[j].accumulation = aggregate_list[j].accumulation + parseInt(list[i].day14);
+        }
+        if (parseInt(list[i].day15) > 0) {
+          aggregate_list[j].accumulation = aggregate_list[j].accumulation + parseInt(list[i].day15);
+        }
+        if (parseInt(list[i].day16) > 0) {
+          aggregate_list[j].accumulation = aggregate_list[j].accumulation + parseInt(list[i].day16);
+        }
+        if (parseInt(list[i].day17) > 0) {
+          aggregate_list[j].accumulation = aggregate_list[j].accumulation + parseInt(list[i].day17);
+        }
+        if (parseInt(list[i].day18) > 0) {
+          aggregate_list[j].accumulation = aggregate_list[j].accumulation + parseInt(list[i].day18);
+        }
+        if (parseInt(list[i].day19) > 0) {
+          aggregate_list[j].accumulation = aggregate_list[j].accumulation + parseInt(list[i].day19);
+        }
+        if (parseInt(list[i].day20) > 0) {
+          aggregate_list[j].accumulation = aggregate_list[j].accumulation + parseInt(list[i].day20);
+        }
+        if (parseInt(list[i].day21) > 0) {
+          aggregate_list[j].accumulation = aggregate_list[j].accumulation + parseInt(list[i].day21);
+        }
+        if (parseInt(list[i].day22) > 0) {
+          aggregate_list[j].accumulation = aggregate_list[j].accumulation + parseInt(list[i].day22);
+        }
+        if (parseInt(list[i].day23) > 0) {
+          aggregate_list[j].accumulation = aggregate_list[j].accumulation + parseInt(list[i].day23);
+        }
+        if (parseInt(list[i].day24) > 0) {
+          aggregate_list[j].accumulation = aggregate_list[j].accumulation + parseInt(list[i].day24);
+        }
+        if (parseInt(list[i].day25) > 0) {
+          aggregate_list[j].accumulation = aggregate_list[j].accumulation + parseInt(list[i].day25);
+        }
+        if (parseInt(list[i].day26) > 0) {
+          aggregate_list[j].accumulation = aggregate_list[j].accumulation + parseInt(list[i].day26);
+        }
+        if (parseInt(list[i].day27) > 0) {
+          aggregate_list[j].accumulation = aggregate_list[j].accumulation + parseInt(list[i].day27);
+        }
+        if (parseInt(list[i].day28) > 0) {
+          aggregate_list[j].accumulation = aggregate_list[j].accumulation + parseInt(list[i].day28);
+        }
+        if (parseInt(list[i].day29) > 0) {
+          aggregate_list[j].accumulation = aggregate_list[j].accumulation + parseInt(list[i].day29);
+        }
+        if (parseInt(list[i].day30) > 0) {
+          aggregate_list[j].accumulation = aggregate_list[j].accumulation + parseInt(list[i].day30);
+        }
+        if (parseInt(list[i].day31) > 0) {
+          aggregate_list[j].accumulation = aggregate_list[j].accumulation + parseInt(list[i].day31);
+        }
+      }
+    }
+  }
+  console.log(aggregate_list);
 }
 
+function by_state(state, county, year) {
+  console.log(state);
+  console.log(county);
+  console.log(year);
+  var states = [];
+  var aggregate = 0;
+  count = 0;
+  for (i = 0; i < downloaded_data.length; i++) {
+    if (downloaded_data[i].state === state) {
+       states[i] = downloaded_data[i];
+       count = count + 1;
+    } 
+  }
+}
+  
 </script>
 </body>
 </html>
