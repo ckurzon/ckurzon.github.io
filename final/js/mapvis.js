@@ -1,11 +1,11 @@
-MapVis = function(_parentElement, _usData, _fipsData, _snflData, _eventHandler){
+MapVis = function(_parentElement, _usData, _snflData, _currentYear, _eventHandler){
     this.parentElement = _parentElement;
     this.usData = _usData;
-    this.fipsData = _fipsData;
     this.snflData = _snflData;
+    this.currentYear = _currentYear;
 
     this.eventHandler = _eventHandler;
-    this.displayData = [];
+    this.displayData = d3.map();
 
     // defines constants
     this.margin = {top: 20, right: 20, bottom: 30, left: 0},
@@ -27,18 +27,14 @@ MapVis.prototype.initVis = function(){
         .offset([0, 0])
         .html(function(d) {
             var ans = "County: <span>" + d.id + "</span>" +  "<br/>" +
-                "Snowfall: <span>" + parseFloat(that.snflMapping.get(d.id)).toFixed(2) + "</span>";
+                "Snowfall: <span>" + parseFloat(that.displayData.get(d.id)).toFixed(2) + "</span>";
             return ans
         });
 
-    this.snflMax = 1.5;
+    this.snflMax = 250;
     this.snflMin = 0;
     this.snflInvalid = -9999.000;
     this.quantizeRange = 5;
-
-    this.snflMapping = d3.map();
-    this.fipsMappingByCounty = d3.map();
-    this.fipsMappingByID = d3.map();
 
     // constructs SVG layout
     this.svg = this.parentElement.append("svg")
@@ -60,37 +56,7 @@ MapVis.prototype.initVis = function(){
 
     this.svg.call( that.tip );
 
-    //this.wrangleData(null);
-
-    //FIPS
-    for (var i=0; i<that.fipsData["table"]["rows"].length; i++){
-        that.fipsMappingByCounty.set( that.fipsData["table"]["rows"][i][1].toUpperCase(), parseInt(that.fipsData["table"]["rows"][i][0], 10));
-//            fipsMappingByID.set( parseInt(fips["table"]["rows"][i][0], 10), fips["table"]["rows"][i][1].toUpperCase() );
-    }
-    console.log("Done fips map");
-
-    var undefinedCount = 0;
-    for (var i=0; i<that.snflData.length; i++){
-        var stateCountyID = that.snflData[i].state + ", " + that.snflData[i].county;
-        var monthlySnfl = ExtractSnflDailyVals(that.snflData[i]);
-        var aggregatedSnfl = CalculateAggregateSnfl(monthlySnfl);
-
-        var countyFipsID = that.fipsMappingByCounty.get(stateCountyID);
-        if (countyFipsID == undefined){
-            //console.log( stateCountyID );
-            undefinedCount = undefinedCount + 1;
-        }
-        else{
-            var v = parseInt(that.fipsMappingByCounty.get(stateCountyID), 10);
-            that.snflMapping.set( v, aggregatedSnfl);
-        }
-
-
-    }
-    console.log( undefinedCount );
-    console.log("Done snfl map");
-
-
+    this.wrangleData(function(d){ return d.year == that.currentYear;});
 
     // call the update method
     this.updateVis();
@@ -112,7 +78,6 @@ MapVis.prototype.wrangleData= function(_filterFunction){
 }
 
 
-
 /**
  * the drawing function - should use the D3 selection, enter, exit
  */
@@ -131,15 +96,24 @@ MapVis.prototype.updateVis = function(){
         .data(topojson.feature(that.usData, that.usData.objects.counties).features)
         .enter().append("path")
         .attr("class", function(d) {
-            var val = that.snflMapping.get(d.id);
-            if (val == undefined) console.log( "error" );
+            var val = that.displayData.get(d.id);
+            if (val == undefined) {
+                //console.log(d.id);
+                console.log("error");
+            }
+
             if (val != undefined){
                 return that.quantize(val);
             }
         })
         .attr("d", that.path)
         .on('mouseover', that.tip.show)
-        .on('mouseout', that.tip.hide);
+        .on('mouseout', that.tip.hide)
+        .on('click',
+            function(d){
+                $(that.eventHandler).trigger("selectionChanged", d.fips);
+            });
+
 
 
     this.svg.append("path")
@@ -148,7 +122,7 @@ MapVis.prototype.updateVis = function(){
         .attr("d", that.path);
 
     console.log("Map ready");
-    console.log("max_snfl threshold = ", that.snflMax);
+    //console.log("max_snfl threshold = ", that.snflMax);
 
 }
 
@@ -159,9 +133,10 @@ MapVis.prototype.updateVis = function(){
  * be defined here.
  * @param selection
  */
-MapVis.prototype.onSelectionChange = function (selectionStart, selectionEnd){
+MapVis.prototype.onSelectionChange = function (year){
 
     // TODO: call wrangle function
+    this.wrangleData(function(d){ return d.year == year;});
 
     this.updateVis();
 }
@@ -192,18 +167,27 @@ MapVis.prototype.filterAndAggregate = function(_filter){
 
     var that = this;
 
-    var data = this.data.filter(filter);
+    var data = this.snflData.filter(filter);
+    var returnMap = d3.map();
+    for (var i=0; i<data.length; i++){
+        var fips = parseInt(data[i]["fips"], 10);
+        var listOfdays =ExtractSnflDailyVals(data[i]);
+        var aggregatedVal = CalculateAggregateSnfl( listOfdays );
+        returnMap.set(fips, aggregatedVal);
+    }
 
-    return data;
+    console.log(returnMap);
+
+    //Mapping {countyID : Aggregated monthly value}
+    return returnMap;
 }
 
 //Helpers
 //////////////////////////////////////////////////////////////
-function ExtractSnflDailyVals(d){
+function ExtractSnflDailyVals(row){
     var monthlySnfl = [];
     for (var i=1; i<=31; i++){
-        var dailySnfl = +d["day" + i.toString()];
-        //if (dailySnfl > 0) console.log( dailySnfl );
+        var dailySnfl = +row["day" + i.toString()];
         monthlySnfl.push( (dailySnfl >= 0) ? dailySnfl : 0 );
     }
     return monthlySnfl;
