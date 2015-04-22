@@ -123,12 +123,11 @@
 
             //TODO: Create an eventHandler  --> DONE :)
             var MyEventHandler = new Object();
-
-
+            console.log(snow_data);
             //TODO: Instantiate all Vis Objects here
             //var age_vis = new AgeVis(d3.select("#ageVis"), allData, metaData, MyEventHandler);
             var map_vis = new MapVis(d3.select("#mapVis"),us_data,fips_data,snow_data, MyEventHandler);
-            var var_vis = new BarVis(d3.select("#barVis"),snow_data, MyEventHandler);
+            var bar_vis = new BarVis(d3.select("#barVis"),snow_data, MyEventHandler);
 
             // TODO: bind the eventHandler to the Vis Objects
             // events will be created from the CountVis object (nothing to do here)

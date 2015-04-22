@@ -98,8 +98,8 @@ BarVis.prototype.updateVis = function(){
     var that = this;
 
     // updates scales
-    this.x.domain(d3.extent(this.displayData, function(d) { return d.snow_fall; }));
-    this.y.domain(this.displayData.map(function(d) { return d.County; }));
+    this.x.domain(d3.extent(this.displayData, function(d) { return d.day1; }));
+    this.y.domain(this.displayData.map(function(d) { return d.county; }));
     //this.color.domain(this.displayData.map(function(d) { return d.type }));
 
     // updates axis
@@ -110,7 +110,7 @@ BarVis.prototype.updateVis = function(){
 
     // Data join
     var bar = this.svg.selectAll(".bar")
-      .data(this.displayData, function(d) { return d.County; });
+      .data(this.displayData, function(d) { return d.county; });
 
     // Append new bar groups, if required
     var bar_enter = bar.enter().append("g");
@@ -123,7 +123,7 @@ BarVis.prototype.updateVis = function(){
     bar
       .attr("class", "bar")
       .transition()
-      .attr("transform", function(d, i) { return "translate(0," + that.y(d.County) + ")"; })
+      .attr("transform", function(d, i) { return "translate(0," + that.y(d.county) + ")"; })
 
     // Remove the extra bars
     bar.exit()
@@ -141,14 +141,14 @@ BarVis.prototype.updateVis = function(){
       .style("fill","purple")
       .transition()
       .attr("width", function(d, i) {
-          return that.x(d.snow_fall);
+          return that.x(d.day1);
       });
 
     bar.selectAll("text")
       .transition()
-      .attr("x", function(d) { return that.x(d.snow_fall) + (that.doesLabelFit(d) ? -3 : 5); })
+      .attr("x", function(d) { return that.x(d.day1) + (that.doesLabelFit(d) ? -3 : 5); })
       .attr("y", function(d,i) { return that.y.rangeBand() / 2; })
-      .text(function(d) { return d.County; })
+      .text(function(d) { return d.county; })
       .attr("class", "type-label")
       .attr("dy", ".35em")
       .attr("text-anchor", function(d) { return that.doesLabelFit(d) ? "end" : "start"; })
@@ -177,7 +177,7 @@ BarVis.prototype.onSelectionChange = function (selectionStart, selectionEnd){
 BarVis.prototype.doesLabelFit = function(datum, label) {
   var pixel_per_character = 6;  // obviously a (rough) approximation
 
-  return datum.County.length * pixel_per_character < this.x(datum.snow_fall);
+  return datum.county.length * pixel_per_character < this.x(datum.day1);
 }
 
 /**
