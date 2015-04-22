@@ -67,7 +67,7 @@ svg.append("path")
     .attr("class", "graticule")
     .attr("d", path);
 
-d3.tsv("data/sndpth.tsv", function(error, data) {
+d3.tsv("../data/sndpth.tsv", function(error, data) {
   downloaded_data = data;
   d3.select("input[value=\"by_state\"]").on("click", by_state);
 }); 
