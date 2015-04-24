@@ -162,12 +162,21 @@ BarVis.prototype.updateVis = function(){
  * be defined here.
  * @param selection
  */
+<<<<<<< HEAD
 BarVis.prototype.onSelectionChange = function (fips){
 
     // TODO: call wrangle function
     fips = num.toString(fips).slice(0,-3);
     this.wrangleData(function(d){ data_fips = num.toString(d.fips).slice(0,-3);
       return fips == data_fips;});
+=======
+BarVis.prototype.onSelectionChange = function (state){
+
+    // TODO: call wrangle function
+
+    this.wrangleData(function(d){ return d.State == state;});
+
+>>>>>>> 7702e3c46ee665664004c63b03d19f8edf36e43e
     this.updateVis();
 }
 
