@@ -124,11 +124,11 @@
 
             //TODO: Create an eventHandler  --> DONE :)
             var MyEventHandler = new Object();
-            console.log(snow_data);
+            //console.log(snow_data);
             //TODO: Instantiate all Vis Objects here
             //var age_vis = new AgeVis(d3.select("#ageVis"), allData, metaData, MyEventHandler);
 
-            var map_vis = new MapVis(d3.select("#mapVis"),us_data,snow_data, MyEventHandler);
+            //var map_vis = new MapVis(d3.select("#mapVis"),us_data,snow_data, MyEventHandler);
             var bar_vis = new BarVis(d3.select("#barVis"),snow_data, MyEventHandler);
 
             // TODO: bind the eventHandler to the Vis Objects
@@ -178,7 +178,7 @@
             us_data = us;
             snow_data = snfl;
 
-            console.log(snow_data[0]);
+            //console.log(snow_data[0]);
 
             initVis();
         }

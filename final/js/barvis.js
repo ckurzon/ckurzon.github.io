@@ -62,7 +62,7 @@ BarVis.prototype.initVis = function(){
       .attr("transform", "translate(0," + this.height + ")");
 
     // filter, aggregate, modify data
-    this.wrangleData(function(d){ return d.State == "CO";});
+    this.wrangleData(function(d){ return (d.State == "CO" && d.year == 2005 && d.month == 01);});
 
     // call the update method
     this.updateVis();
@@ -162,10 +162,12 @@ BarVis.prototype.updateVis = function(){
  * be defined here.
  * @param selection
  */
-BarVis.prototype.onSelectionChange = function (selectionStart, selectionEnd){
+BarVis.prototype.onSelectionChange = function (fips){
 
     // TODO: call wrangle function
-
+    fips = num.toString(fips).slice(0,-3);
+    this.wrangleData(function(d){ data_fips = num.toString(d.fips).slice(0,-3);
+      return fips == data_fips;});
     this.updateVis();
 }
 
