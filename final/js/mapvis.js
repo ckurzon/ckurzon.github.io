@@ -111,7 +111,7 @@ MapVis.prototype.updateVis = function(){
         .on('mouseout', that.tip.hide)
         .on('click',
             function(d){
-                $(that.eventHandler).trigger("selectionChanged", d.fips);
+                $(that.eventHandler).trigger("selectionChanged", d.id);
             });
 
 
