@@ -31,10 +31,10 @@ MapVis.prototype.initVis = function(){
             return ans
         });
 
-    this.snflMax = 250;
+    this.snflMax = 30;
     this.snflMin = 0;
     this.snflInvalid = -9999.000;
-    this.quantizeRange = 5;
+    this.quantizeRange = 10;
 
     // constructs SVG layout
     this.svg = this.parentElement.append("svg")
