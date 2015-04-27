@@ -62,7 +62,7 @@ BarVis.prototype.initVis = function(){
       .attr("transform", "translate(0," + this.height + ")");
 
     // filter, aggregate, modify data
-    this.wrangleData(function(d){ return d.State == "CO";});
+    this.wrangleData(function(d){ return (d.state == "CO" && d.year == 2005);});
 
     // call the update method
     this.updateVis();
@@ -98,8 +98,8 @@ BarVis.prototype.updateVis = function(){
     var that = this;
 
     // updates scales
-    this.x.domain(d3.extent(this.displayData, function(d) { return d.day1; }));
-    this.y.domain(this.displayData.map(function(d) { return d.county; }));
+    this.x.domain(d3.extent(this.displayData, function(d) { return d.values.snow_fall; }));
+    this.y.domain(this.displayData.map(function(d) { return d.key; }));
     //this.color.domain(this.displayData.map(function(d) { return d.type }));
 
     // updates axis
@@ -110,7 +110,7 @@ BarVis.prototype.updateVis = function(){
 
     // Data join
     var bar = this.svg.selectAll(".bar")
-      .data(this.displayData, function(d) { return d.county; });
+      .data(this.displayData, function(d) { return d.key; });
 
     // Append new bar groups, if required
     var bar_enter = bar.enter().append("g");
@@ -119,11 +119,12 @@ BarVis.prototype.updateVis = function(){
     bar_enter.append("rect");
     bar_enter.append("text");
 
+
     // Add attributes (position) to all bars
     bar
       .attr("class", "bar")
       .transition()
-      .attr("transform", function(d, i) { return "translate(0," + that.y(d.county) + ")"; })
+      .attr("transform", function(d, i) { return "translate(0," + that.y(d.key) + ")"; })
 
     // Remove the extra bars
     bar.exit()
@@ -135,24 +136,22 @@ BarVis.prototype.updateVis = function(){
       .attr("x", 0)
       .attr("y", 0)
       .attr("height", this.y.rangeBand())
-      /*.style("fill", function(d,i) {
-        return that.color(d.type);
-      })*/
       .style("fill","purple")
       .transition()
       .attr("width", function(d, i) {
-          return that.x(d.day1);
+          return that.x(d.values.snow_fall);
       });
 
     bar.selectAll("text")
       .transition()
-      .attr("x", function(d) { return that.x(d.day1) + (that.doesLabelFit(d) ? -3 : 5); })
+      .attr("x", function(d) { return that.x(d.values.snow_fall) + (that.doesLabelFit(d) ? -3 : 5); })
       .attr("y", function(d,i) { return that.y.rangeBand() / 2; })
-      .text(function(d) { return d.county; })
+      .text(function(d) { return d.key; })
       .attr("class", "type-label")
       .attr("dy", ".35em")
       .attr("text-anchor", function(d) { return that.doesLabelFit(d) ? "end" : "start"; })
       .attr("fill", function(d) { return that.doesLabelFit(d) ? "white" : "black"; });
+
 }
 
 
@@ -162,12 +161,12 @@ BarVis.prototype.updateVis = function(){
  * be defined here.
  * @param selection
  */
-BarVis.prototype.onSelectionChange = function (state){
+BarVis.prototype.onSelectionChange = function (fips,year){
 
     // TODO: call wrangle function
-
-    this.wrangleData(function(d){ return d.State == state;});
-
+    fips = fips.toString().slice(0,-3);
+    this.wrangleData(function(d){ data_fips = d.fips.toString().slice(0,-3);
+      return (fips == data_fips && year == d.year);});
     this.updateVis();
 }
 
@@ -179,7 +178,7 @@ BarVis.prototype.onSelectionChange = function (state){
 BarVis.prototype.doesLabelFit = function(datum, label) {
   var pixel_per_character = 6;  // obviously a (rough) approximation
 
-  return datum.county.length * pixel_per_character < this.x(datum.day1);
+  return datum.key.length * pixel_per_character < this.x(datum.values.snow_fall);
 }
 
 /**
@@ -192,19 +191,34 @@ BarVis.prototype.filterAndAggregate = function(_filter){
 
     // Set filter to a function that accepts all items
     // ONLY if the parameter _filter is NOT null use this parameter
-    var filter = function(){return true;}
+   var filter = function(){return true;}
     if (_filter != null){
         filter = _filter;
     }
+    //Dear JS hipster, a more hip variant of this construct would be:
+    // var filter = _filter || function(){return true;}
 
-    var that = this;
+  var that = this;
 
-
-    var res = this.data
-        .filter(filter)
-
-
-    return res;
+  var data = this.data.filter(filter);
+  var res = d3.nest()
+    .key(function(d) { return d.county; })
+    .rollup(function(leaves) { return {"snow_fall": d3.sum(leaves, function(d) { 
+      return that.ExtractSnflDailyVals(d)})}})
+    .entries(data);
+  return res;
+  
 }
 
+BarVis.prototype.ExtractSnflDailyVals = function (row) {
+    var monthlySnfl = [];
+    for (var i=1; i<=31; i++){
+        var dailySnfl = +row["day" + i.toString()];
+        monthlySnfl.push( (dailySnfl >= 0) ? dailySnfl : 0 );
+    }
+    var total = monthlySnfl.reduce(function(previousValue, currentValue, index, array) {
+      return previousValue + currentValue;
+    }, 0);;
+    return total;
+}
 

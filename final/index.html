@@ -131,14 +131,11 @@
         // call this function after Data is loaded, reformatted and bound to the variables
         var initVis = function(){
 
-            //TODO: Create an eventHandler  --> DONE :)
             var MyEventHandler = new Object();
-            console.log(snow_data);
-            //TODO: Instantiate all Vis Objects here
 
+            //TODO: Instantiate all Vis Objects here
             map_vis = new MapVis(d3.select("#mapVis"),us_data,snow_data,current_year, MyEventHandler);
             bar_vis = new BarVis(d3.select("#barVis"),snow_data,current_year, MyEventHandler);
-
 
             // TODO: bind the eventHandler to the Vis Objects
             // events will be created from the CountVis object (nothing to do here)
