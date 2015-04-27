@@ -119,6 +119,7 @@ BarVis.prototype.updateVis = function(){
     bar_enter.append("rect");
     bar_enter.append("text");
 
+
     // Add attributes (position) to all bars
     bar
       .attr("class", "bar")
@@ -135,9 +136,6 @@ BarVis.prototype.updateVis = function(){
       .attr("x", 0)
       .attr("y", 0)
       .attr("height", this.y.rangeBand())
-      /*.style("fill", function(d,i) {
-        return that.color(d.type);
-      })*/
       .style("fill","purple")
       .transition()
       .attr("width", function(d, i) {
@@ -153,6 +151,7 @@ BarVis.prototype.updateVis = function(){
       .attr("dy", ".35em")
       .attr("text-anchor", function(d) { return that.doesLabelFit(d) ? "end" : "start"; })
       .attr("fill", function(d) { return that.doesLabelFit(d) ? "white" : "black"; });
+
 }
 
 
@@ -165,8 +164,8 @@ BarVis.prototype.updateVis = function(){
 BarVis.prototype.onSelectionChange = function (fips,year){
 
     // TODO: call wrangle function
-    fips = toString(fips).slice(0,-3);
-    this.wrangleData(function(d){ data_fips = toString(d.fips).slice(0,-3);
+    fips = fips.toString().slice(0,-3);
+    this.wrangleData(function(d){ data_fips = d.fips.toString().slice(0,-3);
       return (fips == data_fips && year == d.year);});
     this.updateVis();
 }
@@ -207,7 +206,6 @@ BarVis.prototype.filterAndAggregate = function(_filter){
     .rollup(function(leaves) { return {"snow_fall": d3.sum(leaves, function(d) { 
       return that.ExtractSnflDailyVals(d)})}})
     .entries(data);
-
   return res;
   
 }
