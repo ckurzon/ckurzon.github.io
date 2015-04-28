@@ -201,15 +201,16 @@ BarVis.prototype.filterAndAggregate = function(_filter){
   var that = this;
 
   var data = this.data.filter(filter);
+
   var res = d3.nest()
     .key(function(d) { return d.county; })
     .rollup(function(leaves) { return {"snow_fall": d3.sum(leaves, function(d) { 
-      return that.ExtractSnflDailyVals(d)})}})
+      return d.monthly})}})
     .entries(data);
   return res;
   
 }
-
+/*
 BarVis.prototype.ExtractSnflDailyVals = function (row) {
     var monthlySnfl = [];
     for (var i=1; i<=31; i++){
@@ -222,3 +223,4 @@ BarVis.prototype.ExtractSnflDailyVals = function (row) {
     return total;
 }
 
+*/

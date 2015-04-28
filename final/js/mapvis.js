@@ -169,12 +169,22 @@ MapVis.prototype.filterAndAggregate = function(_filter){
 
     var data = this.snflData.filter(filter);
     var returnMap = d3.map();
-    for (var i=0; i<data.length; i++){
+   /*for (var i=0; i<data.length; i++){
         var fips = parseInt(data[i]["fips"], 10);
-        var listOfdays =ExtractSnflDailyVals(data[i]);
-        var aggregatedVal = CalculateAggregateSnfl( listOfdays );
+        //var listOfdays =ExtractSnflDailyVals(data[i]);
+        var aggregatedVal = data[i]["monthly"];
         returnMap.set(fips, aggregatedVal);
-    }
+    }*/
+
+    var res = d3.nest()
+        .key(function(d) { return d.fips; })
+        .rollup(function(leaves) { return {"aggregatedVal": d3.sum(leaves, function(d) { 
+            return d.monthly})}})
+        .entries(data);
+
+    res.map(function(d){
+        returnMap.set(d.key,d.values.aggregatedVal);
+    })
 
     console.log(returnMap);
 
