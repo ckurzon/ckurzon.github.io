@@ -216,6 +216,10 @@ BarVis.prototype.filterAndAggregate = function(_filter){
   var that = this;
 
   var data = this.data.filter(filter);
+  
+  var n = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  
+  data.map(function(d) {d.month = n[d.month-1]})
 
   /*var res = d3.nest()
     .key(function(d) { return d.county; })
