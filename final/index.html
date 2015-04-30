@@ -90,6 +90,7 @@
 <script src="libs/bootstrap/js/bootstrap.min.js" charset="utf-8"></script>
 <script src="js/barvis.js"></script>
 <script src="js/mapvis.js"></script>
+<script src="js/dailyvis.js"></script>
 <body>
 
 <div class="container">
@@ -100,6 +101,8 @@
         <div class="col-md-9" id="mapVis"> Map Container
         </div>
         <div class="col-md-3" id="barVis"> Bar Container
+        </div>
+        <div class="col-md-3" id="dailyVis"> Line Container
         </div>
     </div>
 </div>
@@ -117,6 +120,7 @@
         // variables keeping global knowledge of the data
         var us_data = [];
         var snow_data = {};
+        var daily_data = {};
 
         var current_year = 2005;
 
@@ -130,13 +134,16 @@
 
             //TODO: Instantiate all Vis Objects here
             map_vis = new MapVis(d3.select("#mapVis"),us_data,snow_data,current_year, MyEventHandler);
-            bar_vis = new BarVis(d3.select("#barVis"),snow_data,current_year, MyEventHandler);
+            bar_vis = new BarVis(d3.select("#barVis"),snow_data, MyEventHandler);
+            //daily_vis = new DailyVis(d3.select("#dailyVis"),daily_data, current_year, MyEventHandler);
+
 
             // TODO: bind the eventHandler to the Vis Objects
             // events will be created from the CountVis object (nothing to do here)
             // events will be consumed by the PrioVis and AgeVis object (binding should happen here)
             $(MyEventHandler).bind("selectionChanged", function(event, fips){
                 bar_vis.onSelectionChange(fips, current_year);
+                //daily_vis.onSelectionChange(fips, current_year);
             });
 
         }
@@ -146,10 +153,11 @@
                 .defer(d3.json, "../json/us.json")
                 .defer(d3.json, "../json/FipsCountyCodes.json")
                 .defer(d3.csv, "../data/new_snfl.csv")
+                //.defer(d3.tsv, "../data/snfl.tsv")
                 .await(ready);
 
-        function ready(error, us, fips, snfl) {
-
+        //function ready(error, us, fips, snfl, daily_snfl) {
+        function ready(error, us, fips, snfl, daily_snfl) {
             console.log("Error: ", error);
             if (error) {
                 console.log("error with file loading...");
@@ -175,9 +183,21 @@
                     snfl[i]["fips"] = parseInt(fipsMappingByCounty.get(stateCountyID), 10);
                 }
             }
+/*
+            for (var i=0; i<daily_snfl.length; i++){
+                var stateCountyID = daily_snfl[i].state + ", " + daily_snfl[i].county;
+                var countyFipsID = fipsMappingByCounty.get(stateCountyID);
+                if (countyFipsID == undefined){
+                    daily_snfl[i]["fips"] = '';
+                }
+                else{
+                    daily_snfl[i]["fips"] = parseInt(fipsMappingByCounty.get(stateCountyID), 10);
+                }
+            }*/
 
             us_data = us;
             snow_data = snfl;
+            //daily_data = daily_snfl;
 
             initVis();
         }

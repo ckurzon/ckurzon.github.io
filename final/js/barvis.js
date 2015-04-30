@@ -19,9 +19,9 @@ BarVis = function(_parentElement, _data, _eventHandler){
     this.displayData = [];
 
     // defines constants
-    this.margin = {top: 20, right: 20, bottom: 30, left: 0},
-    this.width = 600 - this.margin.left - this.margin.right,
-    this.height = 600 - this.margin.top - this.margin.bottom;
+    this.margin = {top: 100, right: 20, bottom: 30, left: 20},
+    this.width = 300 - this.margin.left - this.margin.right,
+    this.height = 300 - this.margin.top - this.margin.bottom;
     this.initVis();
 }
 
@@ -39,11 +39,11 @@ BarVis.prototype.initVis = function(){
         .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
 
     // creates axis and scales
-    this.x = d3.scale.linear()
-      .range([0, this.width]);
+    this.y = d3.scale.linear()
+      .range([this.height,0]);
 
-    this.y = d3.scale.ordinal()
-      .rangeRoundBands([0, this.height], .1);
+    this.x = d3.scale.ordinal()
+      .rangeRoundBands([0, this.width], .1);
 
     //this.color = d3.scale.category20();
 
@@ -62,7 +62,8 @@ BarVis.prototype.initVis = function(){
       .attr("transform", "translate(0," + this.height + ")");
 
     // filter, aggregate, modify data
-    this.wrangleData(function(d){ return (d.state == "CO" && d.year == 2005);});
+    //this.wrangleData(function(d){ return (d.state == "CO" && d.year == 2005);});
+    this.wrangleData(function(d){ return (d.fips == 23003 && d.year == 2005);});
 
     // call the update method
     this.updateVis();
@@ -90,41 +91,33 @@ BarVis.prototype.wrangleData= function(_filterFunction){
  */
 BarVis.prototype.updateVis = function(){
 
-    // Dear JS hipster,
-    // you might be able to pass some options as parameter _option
-    // But it's not needed to solve the task.
-    // var options = _options || {};
 
     var that = this;
 
-    // updates scales
-    this.x.domain(d3.extent(this.displayData, function(d) { return d.values.snow_fall; }));
-    this.y.domain(this.displayData.map(function(d) { return d.key; }));
-    //this.color.domain(this.displayData.map(function(d) { return d.type }));
-
     // updates axis
-    this.svg.select(".x.axis")
-        .call(this.xAxis);
 
+    this.x.domain(this.displayData.map(function(d,i) { return d.month; }));
+    var range = d3.extent(this.displayData, function(d) { return d.monthly; });
+    range[1] = (parseFloat(range[1]) + 10.0).toString();
+    this.y.domain(range);
     // updates graph
 
     // Data join
     var bar = this.svg.selectAll(".bar")
-      .data(this.displayData, function(d) { return d.key; });
+      .data(this.displayData, function(d,i) { return d.month; });
 
     // Append new bar groups, if required
     var bar_enter = bar.enter().append("g");
 
     // Append a rect and a text only for the Enter set (new g)
-    bar_enter.append("rect");
-    bar_enter.append("text");
-
+    bar_enter.append("rect")
 
     // Add attributes (position) to all bars
     bar
       .attr("class", "bar")
       .transition()
-      .attr("transform", function(d, i) { return "translate(0," + that.y(d.key) + ")"; })
+      .attr("transform", function(d, i) { return "translate(" + that.x(d.month) + ",0)"; })
+
 
     // Remove the extra bars
     bar.exit()
@@ -132,25 +125,47 @@ BarVis.prototype.updateVis = function(){
 
     // Update all inner rects and texts (both update and enter sets)
 
-    bar.selectAll("rect")
+    bar.select("rect")
       .attr("x", 0)
-      .attr("y", 0)
-      .attr("height", this.y.rangeBand())
-      .style("fill","purple")
+      .attr("width", this.x.rangeBand())
+      .style("fill", "fill")
       .transition()
-      .attr("width", function(d, i) {
-          return that.x(d.values.snow_fall);
-      });
+      .attr("y", function(d){ return that.y(d.monthly);})
+      .attr("height", function(d) {
+          return that.height - that.y(d.monthly)
+      })
 
+    this.svg.select(".y.axis")
+      .call(this.yAxis)
+
+
+    this.svg.select(".x.axis")
+      .call(this.xAxis)
+      .selectAll("text")  
+              .style("text-anchor", "end")
+              .attr("dx", "-.50em")
+              .attr("dy", ".15em")
+              .attr("transform", function(d) {
+                  return "rotate(-65)" 
+                  });
+
+    this.svg.append("text")
+        .attr("x", (this.width / 2))             
+        .attr("y", -5)
+        .attr("text-anchor", "middle")  
+        .style("font-size", "16px") 
+        .text(function(d) {"Monthly Snowfall"});
+
+/*
     bar.selectAll("text")
       .transition()
-      .attr("x", function(d) { return that.x(d.values.snow_fall) + (that.doesLabelFit(d) ? -3 : 5); })
+      .attr("x", function(d) { return that.y(d.values.snow_fall) + (that.doesLabelFit(d) ? -3 : 5); })
       .attr("y", function(d,i) { return that.y.rangeBand() / 2; })
       .text(function(d) { return d.key; })
       .attr("class", "type-label")
       .attr("dy", ".35em")
       .attr("text-anchor", function(d) { return that.doesLabelFit(d) ? "end" : "start"; })
-      .attr("fill", function(d) { return that.doesLabelFit(d) ? "white" : "black"; });
+      .attr("fill", function(d) { return that.doesLabelFit(d) ? "white" : "black"; });*/
 
 }
 
@@ -164,9 +179,9 @@ BarVis.prototype.updateVis = function(){
 BarVis.prototype.onSelectionChange = function (fips,year){
 
     // TODO: call wrangle function
-    fips = fips.toString().slice(0,-3);
-    this.wrangleData(function(d){ data_fips = d.fips.toString().slice(0,-3);
-      return (fips == data_fips && year == d.year);});
+    //fips = fips.toString().slice(0,-3);
+    this.wrangleData(function(d){ /*data_fips = d.fips.toString().slice(0,-3);*/
+      return (fips == d.fips && year == d.year);});
     this.updateVis();
 }
 
@@ -202,12 +217,13 @@ BarVis.prototype.filterAndAggregate = function(_filter){
 
   var data = this.data.filter(filter);
 
-  var res = d3.nest()
+  /*var res = d3.nest()
     .key(function(d) { return d.county; })
     .rollup(function(leaves) { return {"snow_fall": d3.sum(leaves, function(d) { 
       return d.monthly})}})
-    .entries(data);
-  return res;
+    .entries(data);*/
+  console.log(data);
+  return data;
   
 }
 /*
