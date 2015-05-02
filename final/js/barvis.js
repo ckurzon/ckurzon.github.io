@@ -32,7 +32,7 @@ BarVis = function(_parentElement, _data, _eventHandler){
 BarVis.prototype.initVis = function(){
 
     // constructs SVG layout
-    this.svg = this.parentElement.append("svg")
+    this.svg = this.parentElement.select("svg")
         .attr("width", this.width + this.margin.left + this.margin.right)
         .attr("height", this.height + this.margin.top + this.margin.bottom)
       .append("g")
@@ -112,6 +112,7 @@ BarVis.prototype.updateVis = function(){
     // Append a rect and a text only for the Enter set (new g)
     bar_enter.append("rect")
 
+
     // Add attributes (position) to all bars
     bar
       .attr("class", "bar")
@@ -135,11 +136,11 @@ BarVis.prototype.updateVis = function(){
           return that.height - that.y(d.monthly)
       })
 
-    this.svg.select(".y.axis")
+    var yaxis = this.svg.select(".y.axis")
       .call(this.yAxis)
 
 
-    this.svg.select(".x.axis")
+    var xaxis = this.svg.select(".x.axis")
       .call(this.xAxis)
       .selectAll("text")  
               .style("text-anchor", "end")
@@ -149,12 +150,20 @@ BarVis.prototype.updateVis = function(){
                   return "rotate(-65)" 
                   });
 
-    this.svg.append("text")
+    var text = this.svg.append("text")
         .attr("x", (this.width / 2))             
         .attr("y", -5)
         .attr("text-anchor", "middle")  
         .style("font-size", "16px") 
         .text(function(d) {"Monthly Snowfall"});
+
+    bar_enter.on("click", function(d,i ) {
+        /*bar.transition().remove();
+        yaxis.transition().remove();
+        xaxis.transition().remove();
+        text.transition().remove();*/
+       $(that.eventHandler).trigger("barClicked",d);
+    })
 
 /*
     bar.selectAll("text")
@@ -219,14 +228,15 @@ BarVis.prototype.filterAndAggregate = function(_filter){
   
   var n = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   
-  data.map(function(d) {d.month = n[d.month-1]})
+  data.map(function(d) {
+    d["month_num"] = d.month;
+    d["month"] = n[d.month-1]})
 
   /*var res = d3.nest()
     .key(function(d) { return d.county; })
     .rollup(function(leaves) { return {"snow_fall": d3.sum(leaves, function(d) { 
       return d.monthly})}})
     .entries(data);*/
-  console.log(data);
   return data;
   
 }
