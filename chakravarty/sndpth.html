@@ -105,7 +105,7 @@ Time: 2005 <input type="range" name="points" min="2005" max="2015" step="1" valu
 <script src="http://d3js.org/topojson.v1.min.js"></script>
 <script src="d3.slider.js"></script>
 <script>
-    d3.select('#slider1').call(d3.slider());
+    d3.select('#slider1').call(d3.slider().axis(true).min(2005).max(2015).step(1));
 </script>
   <form>
     <label><input type="radio" name="layout" value="by_state"> Snowfall by State </label> 
