@@ -1,5 +1,7 @@
 <title>World Snow Depth</title>
-<style>
+<head>
+  <link rel="stylesheet" href="d3.slider.css" /> 
+  <style>
 
 .graticule {
   fill: none;
@@ -23,17 +25,95 @@
   stroke: #fff;
 }
 
+.legend rect {
+  fill:white;
+  stroke:black;
+  opacity:0.8;}
+
+.input-color {
+    position: relative;
+}
+.input-color input {
+    padding-left: 40px;
+}
+.input-color .color-box {
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+    background-color: #ccc;
+    position: absolute;
+    left: 5px;
+    top: 5px;
+}
+
+.wrapper {
+      width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+.wrapper > div {
+      margin: 35px 0;
+    }
+
 </style>
+</head>
 <body>
+<div class="wrapper">
+  <div id="slider1"></div>
+</div>
 Time: 2005 <input type="range" name="points" min="2005" max="2015" step="1" value="0" id="slider-time" oninput="year_value();"> 2015
+
+<table style="width:20%">
+  <tr>
+    <td><div class="input-color">
+      <input type="text" value="Negligible" />
+    <div class="color-box" style="background-color: #0000FF;"></div>
+    <!-- Replace "#FF850A" to change the color -->
+</div></td>
+  </tr>
+  <tr>
+    <td><div class="input-color">
+    <input type="text" value="<1" />
+    <div class="color-box" style="background-color: #013ADF;"></div>
+    <!-- Replace "#FF850A" to change the color -->
+</div></td>
+  </tr>
+  <tr>
+    <td><div class="input-color">
+    <input type="text" value="<10" />
+    <div class="color-box" style="background-color: #0431B4;"></div>
+    <!-- Replace "#FF850A" to change the color -->
+</div></td>
+  </tr>
+  <tr>
+    <td><div class="input-color">
+    <input type="text" value="<50" />
+    <div class="color-box" style="background-color: #5858FA;"></div>
+    <!-- Replace "#FF850A" to change the color -->
+</div></td>
+  </tr>
+  <tr>
+    <td><div class="input-color">
+    <input type="text" value="100+" />
+    <div class="color-box" style="background-color: #0B0B61;"></div>
+    <!-- Replace "#FF850A" to change the color -->
+</div></td>
+  </tr>
+</table>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script src="http://d3js.org/topojson.v1.min.js"></script>
-<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="d3.slider.js"></script>
+<script>
+    d3.select('#slider1').call(d3.slider().axis(true).min(2005).max(2015).step(1));
+</script>
   <form>
     <label><input type="radio" name="layout" value="by_state"> Snowfall by State </label> 
     <label><input type="radio" name="layout" value="by_state"> SnowDepth by State </label>
   </form>
 <script>
+
+var color = d3.scale.category10();
 
 var downloaded_data;
 
@@ -63,7 +143,7 @@ var graticule = d3.geo.graticule()
 
 var svg = d3.select("body").append("svg")
     .attr("width", width)
-    .attr("height", height);
+    .attr("height", height); 
 
 function year_value(data) {
     d3.selectAll("input").each(function(d) {
@@ -80,6 +160,8 @@ svg.append("path")
     .attr("d", path);
 
 d3.tsv("data/sndpth.tsv", function(error, data) {
+  color.domain(d3.keys(data[0]).filter(function(key) { return key == "elevation"; }));
+  console.log(data);
   data.forEach(function(d) {
       for (j = 0; j < county_state_list.length; j++) {
         if (county_state_list[j] == d.county + " " + d.state) {
@@ -93,13 +175,11 @@ d3.tsv("data/sndpth.tsv", function(error, data) {
   });
 
     downloaded_data = data;
-    console.log(county_state_list);
   for (k = 0; k < county_state_list.length; k++) {
     aggregate_list[k] = {county: county_state_list[k], accumulation: 0};
   } 
-  console.log(aggregate_list);
-
   d3.select("input[value=\"by_state\"]").on("click", by_state);
+
 }); 
 
 d3.json("data/us.json", function(error, us) {
@@ -246,7 +326,7 @@ function by_state(state, county, year) {
     } 
   }
 }
-  
+
 </script>
 </body>
 </html>
