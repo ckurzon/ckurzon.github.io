@@ -1,5 +1,7 @@
 <title>World Snow Depth</title>
-<style>
+<head>
+  <link rel="stylesheet" href="d3.slider.css" /> 
+  <style>
 
 .graticule {
   fill: none;
@@ -44,8 +46,22 @@
     top: 5px;
 }
 
+.wrapper {
+      width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+.wrapper > div {
+      margin: 35px 0;
+    }
+
 </style>
+</head>
 <body>
+<div class="wrapper">
+  <div id="slider1"></div>
+</div>
 Time: 2005 <input type="range" name="points" min="2005" max="2015" step="1" value="0" id="slider-time" oninput="year_value();"> 2015
 
 <table style="width:20%">
@@ -87,6 +103,10 @@ Time: 2005 <input type="range" name="points" min="2005" max="2015" step="1" valu
 </table>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script src="http://d3js.org/topojson.v1.min.js"></script>
+<script src="d3.slider.js"></script>
+<script>
+    d3.select('#slider1').call(d3.slider());
+</script>
   <form>
     <label><input type="radio" name="layout" value="by_state"> Snowfall by State </label> 
     <label><input type="radio" name="layout" value="by_state"> SnowDepth by State </label>
