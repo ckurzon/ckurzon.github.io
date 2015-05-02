@@ -1,9 +1,11 @@
-MapVis = function(_parentElement, _mapData, _data, _eventHandler){
+MapVis = function(_parentElement, _usData, _snflData, _currentYear, _eventHandler){
     this.parentElement = _parentElement;
-    this.data = _data;
+    this.usData = _usData;
+    this.snflData = _snflData;
+    this.currentYear = _currentYear;
+
     this.eventHandler = _eventHandler;
-    this.us = _mapData;
-    this.displayData = [];
+    this.displayData = d3.map();
 
     // defines constants
     this.margin = {top: 20, right: 20, bottom: 30, left: 0},
@@ -19,6 +21,21 @@ MapVis = function(_parentElement, _mapData, _data, _eventHandler){
 MapVis.prototype.initVis = function(){
 
     var that = this;
+
+    this.tip = d3.tip()
+        .attr('class', 'd3-tip')
+        .offset([0, 0])
+        .html(function(d) {
+            var ans = "County: <span>" + d.id + "</span>" +  "<br/>" +
+                "Snowfall: <span>" + parseFloat(that.displayData.get(d.id)).toFixed(2) + "</span>";
+            return ans
+        });
+
+    this.snflMax = 250;
+    this.snflMin = 0;
+    this.snflInvalid = -9999.000;
+    this.quantizeRange = 5;
+
     // constructs SVG layout
     this.svg = this.parentElement.append("svg")
         .attr("width", this.width + this.margin.left + this.margin.right)
@@ -26,11 +43,9 @@ MapVis.prototype.initVis = function(){
       .append("g")
         .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
 
-    this.rateById = d3.map();
-
     this.quantize = d3.scale.quantize()
-      .domain([0, .15])
-      .range(d3.range(9).map(function(i) { return "q" + i + "-9"; }));
+      .domain([that.snflMin, that.snflMax])
+      .range(d3.range(that.quantizeRange).map(function(i) { return "q" + i + "-9"; }));
 
     this.projection = d3.geo.albersUsa()
         .scale(1280)
@@ -39,7 +54,10 @@ MapVis.prototype.initVis = function(){
     this.path = d3.geo.path()
         .projection(that.projection);
 
-    this.wrangleData(null);
+    this.svg.call( that.tip );
+
+    this.wrangleData(function(d){ return d.year == that.currentYear;});
+
     // call the update method
     this.updateVis();
 }
@@ -60,7 +78,6 @@ MapVis.prototype.wrangleData= function(_filterFunction){
 }
 
 
-
 /**
  * the drawing function - should use the D3 selection, enter, exit
  */
@@ -73,27 +90,40 @@ MapVis.prototype.updateVis = function(){
 
     var that = this;
 
+    this.svg.append("g")
+        .attr("class", "counties")
+        .selectAll("path")
+        .data(topojson.feature(that.usData, that.usData.objects.counties).features)
+        .enter().append("path")
+        .attr("class", function(d) {
+            var val = that.displayData.get(d.id);
+            if (val == undefined) {
+                //console.log(d.id);
+                console.log("error");
+            }
 
-    this.data.map(function (d) {that.rateById.set(d.id, (+d.snow_fall)/10.0)});
-    
-    /*this.svg.append("g")
-        .attr("class", "counties")*/
-      
-    var path = this.svg.selectAll("path")
-        .data(topojson.feature(that.us, that.us.objects.counties).features)
-      
-    var path_enter = path.enter().append("path")
-        .attr("class", function(d) { return that.quantize(that.rateById.get(d.id)); })
-        .attr("d", that.path);
+            if (val != undefined){
+                return that.quantize(val);
+            }
+        })
+        .attr("d", that.path)
+        .on('mouseover', that.tip.show)
+        .on('mouseout', that.tip.hide)
+        .on('click',
+            function(d){
+                $(that.eventHandler).trigger("selectionChanged", d.id);
+            });
+
+
 
     this.svg.append("path")
-        .datum(topojson.mesh(that.us, that.us.objects.states, function(a, b) { return a !== b; }))
+        .datum(topojson.mesh(that.usData, that.usData.objects.states, function(a, b) { return a !== b; }))
         .attr("class", "states")
         .attr("d", that.path);
 
-    path_enter.on("click", function(d) {
-       console.log(d.State);
-    })
+    console.log("Map ready");
+    //console.log("max_snfl threshold = ", that.snflMax);
+
 }
 
 
@@ -103,9 +133,10 @@ MapVis.prototype.updateVis = function(){
  * be defined here.
  * @param selection
  */
-MapVis.prototype.onSelectionChange = function (selectionStart, selectionEnd){
+MapVis.prototype.onSelectionChange = function (year){
 
     // TODO: call wrangle function
+    this.wrangleData(function(d){ return d.year == year;});
 
     this.updateVis();
 }
@@ -136,9 +167,44 @@ MapVis.prototype.filterAndAggregate = function(_filter){
 
     var that = this;
 
-    var data = this.data.filter(filter);
+    var data = this.snflData.filter(filter);
+    var returnMap = d3.map();
+   /*for (var i=0; i<data.length; i++){
+        var fips = parseInt(data[i]["fips"], 10);
+        //var listOfdays =ExtractSnflDailyVals(data[i]);
+        var aggregatedVal = data[i]["monthly"];
+        returnMap.set(fips, aggregatedVal);
+    }*/
 
-    return data;
+    var res = d3.nest()
+        .key(function(d) { return d.fips; })
+        .rollup(function(leaves) { return {"aggregatedVal": d3.sum(leaves, function(d) { 
+            return d.monthly})}})
+        .entries(data);
+
+    res.map(function(d){
+        returnMap.set(d.key,d.values.aggregatedVal);
+    })
+
+    console.log(returnMap);
+
+    //Mapping {countyID : Aggregated monthly value}
+    return returnMap;
 }
+
+//Helpers
+//////////////////////////////////////////////////////////////
+function ExtractSnflDailyVals(row){
+    var monthlySnfl = [];
+    for (var i=1; i<=31; i++){
+        var dailySnfl = +row["day" + i.toString()];
+        monthlySnfl.push( (dailySnfl >= 0) ? dailySnfl : 0 );
+    }
+    return monthlySnfl;
+}
+
+function CalculateAggregateSnfl( days ){
+    return d3.sum( days );
+};
 
 
