@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+
+    <!--Stylesheet files-->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/d3.slider.css">
+    <link rel="stylesheet" href="css/snow.css">
+    <link rel="stylesheet" href="libs/bootstrap/css/bootstrap.min.css">
+
+    <!--Title-->
+    <title>The More You Snow!</title>
+
+</head>
+
+<!--Add default d3 refs-->
+<script src="libs/d3/d3.v3.min.js"></script>
+<script src="libs/d3/queue.v1.min.js"></script>
+<script src="libs/d3/topojson.v1.min.js"></script>
+
+<!--Additional libs for functionality-->
+<script src="libs/jquery/jquery-2.1.1.min.js" charset="utf-8"></script>
+<script src="libs/bootstrap/js/bootstrap.min.js" charset="utf-8"></script>
+
+<!--Time Slider-->
+<script src="libs/d3/d3.slider.js"></script>
+
+<!--Javascript files-->
+<script src="js/barvis.js"></script>
+<script src="js/dailyvis.js"></script>
+<script src="js/mapvis.js"></script>
+<script src="js/storyvis.js"></script>
+
+<body>
+<div id="container">
+    <!--TITLE-->
+    <div id="title-container" class="row">
+        <h1 id="title">The More You Snow!</h1>
+    </div>
+
+    <!--TODO: Update story info-->
+    <!--TEXT-->
+    <div id="story-container" class="row">
+        <p>
+            <object id="story" width=100% height="40" type="text/plain" data="" border="0" style="background-color: white">
+            </object>
+        </p>
+    </div>
+
+    <!--TODO: Update slider info-->
+    <!--SLIDER INFO-->
+    <div id="time-container" class="row">
+
+        <div id="date" class="col-sm-2">
+            <p id="month">
+                <span>YEAR </span>" 2005"
+            </p>
+        </div>
+
+        <!--PLAY BUTTON-->
+        <div id="play" title="Play animation" class="col-sm-1"></div>
+
+        <!--SLIDER-->
+        <div id="slider-container" class="col-sm-5">
+            Time: 2005 <input type="range" name="points" min="2005" max="2015" step="1" value="0" id="slider-time" width="500px"> 2015
+            <!--<div id="slider-div"></div>-->
+            <!--<div id="slider-probe"></div>-->
+                <!--<p></p>-->
+                <!--<div></div>-->
+            <!--</div>-->
+        </div>
+
+    </div>
+
+
+    <!--VISUALIZATION (Managed with BOOTSTRAP)-->
+    <div id="visualization-container" class="row">
+        <!--LEGEND-->
+        <!--TODO: Update legend info-->
+        <div id="legend-container" class="col-sm-1">
+        </div>
+
+        <!--MAP-->
+        <div id="map-container" class="col-sm-8">
+        </div>
+
+        <div id="views-container" class="col-sm-3">
+            <!--MONTHLY BARS-->
+            <div class="row">
+                <div id="bar-container">
+                    <svg width = "300" height = "300" style="background-color: white"></svg>
+                </div>
+            </div>
+            <!--DAILY LINES-->
+            <div class="row">
+
+                <div id="line-container">
+                    <svg width = "300" height = "300" style="background-color: white"></svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!--FOOTER-->
+    <div id="footer-container" style="background-color: white">
+        Customize Footer to Mention Authors and Acknowledgements...
+    </div>
+</div>
+
+<div id="snow-background">
+</div>
+
+<!-- MAIN APP -->
+<script>
+    $(function() {
+
+        var us_data = [];           // Draw Map boundaries/paths
+        var snow_data = {};         // Monthly snowfall
+        var daily_data = {};        // daily snow fall
+
+        var fipsToCountyMap = d3.map();
+        var countyToFipsMap = d3.map();
+
+        var current_year = 2015;    // Current year selected
+
+        //Visualizations
+        var map_vis;
+        var bar_vis;
+        var daily_vis;              //TODO: Integrate Daily Data
+
+        DEBUG = true;           // Global debug variable
+
+        //Call initVis function after Data is loaded, reformatted and bound to the variables
+        var initVis = function () {
+
+            var MyEventHandler = new Object();  //Keep track of events
+
+            // Viz containers
+            map_vis = new MapVis(d3.select("#map-container"), fipsToCountyMap, us_data, snow_data, current_year, MyEventHandler);
+            bar_vis = new BarVis(d3.select("#bar-container"), snow_data, MyEventHandler);
+//            daily_vis = new DailyVis(d3.select("#line-container"), daily_data, current_year, MyEventHandler);
+
+            // Trigger Bindings
+            $(MyEventHandler).bind("selectionChanged", function (event, fips) {
+                bar_vis.onSelectionChange(fips, current_year);
+            });
+            $(MyEventHandler).bind("barClicked", function (event, d) {
+//                daily_vis.onBarClicked(d.county, d.month_num, current_year);
+            });
+        }
+
+        if (DEBUG) console.log("loading files");
+
+        //TODO Refactor data
+        queue()
+                .defer(d3.json, "../final/json/us.json")
+                .defer(d3.json, "../final/json/FipsCountyCodes.json")
+                .defer(d3.csv, "../final/data/snflMonthly.csv")
+//                .defer(d3.tsv, "../final/data/snflDaily.tsv")
+                .await(ready);
+
+        function ready(error, us, fips, snfl){ //, daily_snfl) {
+
+            if (DEBUG) console.log("Error: ", error);
+
+            if (error) {
+                if (DEBUG) console.log("error with file loading...");
+                return;
+            }
+
+            //FIPS
+            ProcessData(us, fips, snfl) //, daily_snfl);
+
+            us_data = us;
+            snow_data = snfl;
+//            daily_data = (daily_snfl);
+
+            initVis();
+        }
+
+
+        //TODO: Jay Update slider mechanics
+        d3.select("#slider-time").on("input", function() {
+            //Slider Input
+            current_year = (this).value;
+            if(DEBUG) console.log(current_year);
+            map_vis.onSelectionChange(current_year);
+        });
+
+
+        //TODO: Jay Update story mechanics
+        var storyObject = document.getElementById('story');
+        newText(storyObject, "2005", "7");
+
+        //HELPERS
+        /////////////////////////////////////////////////////////////////////////////////
+
+        function ProcessData(us, fips, snfl){ //, daily_snfl) {
+            for (var i = 0; i < fips["table"]["rows"].length; i++) {
+                countyToFipsMap.set(fips["table"]["rows"][i][1].toUpperCase(), parseInt(fips["table"]["rows"][i][0], 10));
+                fipsToCountyMap.set(parseInt(fips["table"]["rows"][i][0], 10), fips["table"]["rows"][i][1].toUpperCase());
+            }
+
+            for (var i = 0; i < snfl.length; i++) {
+                var stateCountyID = snfl[i].state + ", " + snfl[i].county;
+                var countyFipsID = countyToFipsMap.get(stateCountyID);
+                snfl[i]["fips"] = (countyFipsID == undefined) ? '' : parseInt(countyToFipsMap.get(stateCountyID), 10);
+            }
+            if (DEBUG) console.log("Done fips mapping");
+        }
+    });
+
+</script>
+
+</body>
+
+<!--TODO: Loading Screen-->
+<!--&lt;!&ndash;<div class="se-pre-con"></div>&ndash;&gt;-->
+
+<!--<script type="text/javascript">-->
+    <!--//paste this code under head tag or in a seperate js file.-->
+    <!--// Wait for window load-->
+    <!--$(document).ready(function() {-->
+        <!--// Animate loader off screen-->
+        <!--//document.getElementsByTagName("html")[0].style.visibility = "visible";-->
+        <!--//document.getElementsByTagName("body")[0].style.visibility = "visible";-->
+        <!--console.log('done');-->
+
+    <!--});-->
+<!--</script>-->
+
+</html>
