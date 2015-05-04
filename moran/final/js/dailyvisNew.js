@@ -175,11 +175,8 @@ DailyVis.prototype.updateVis = function(){
 DailyVis.prototype.onBarClicked = function (fips,month,year){
     var that = this;
 
-    this.year = year;
-    if (month.length < 2)
-        month = "0" + month;
+    this.year = year; 
     this.month = month;
-
     this.wrangleData(fips);
     this.updateVis();
 }
@@ -212,7 +209,6 @@ DailyVis.prototype.filterAndAggregate = function(fips){
 
     var that = this;
     var data = this.data.filter(function(d){ return (d.key == that.year)});
-
 
     data = data[0].values;
     data = data.filter(function(d){return (d.key == that.month)});

@@ -108,7 +108,7 @@
 
 
     <!--FOOTER-->
-    <div id="footer-container" style="background-color: white">
+    <div id="footer-container">
         Customize Footer to Mention Authors and Acknowledgements...
     </div>
 </div>
@@ -164,10 +164,10 @@
         if (DEBUG) console.log("loading files");
 
         queue()
-                .defer(d3.json, "../final/json/us.json")
-                .defer(d3.json, "../final/json/FipsCountyCodes.json")
-                .defer(d3.csv, "../final/data/snflMonthly.csv")
-                .defer(d3.tsv, "../final/data/snfl_clean.tsv")
+                .defer(d3.json, "json/us.json")
+                .defer(d3.json, "json/FipsCountyCodes.json")
+                .defer(d3.csv, "data/snflMonthly.csv")
+                .defer(d3.tsv, "data/snfl_clean.tsv")
                 .await(ready);
 
         function ready(error, us, fips, snfl, daily_snfl) {
@@ -197,7 +197,6 @@
             d3.select("#month").html("<span>" + "YEAR" + "</span>" + "' " + current_year +"'");
             map_vis.onSelectionChange(current_year);
         });
-
 
         //TODO: Jay Update story mechanics
         var storyObject = document.getElementById('story');

@@ -174,6 +174,7 @@ DailyVis.prototype.onBarClicked = function (county,month,year){
     this.year = year;
     if (month.length < 2)
         month = "0" + month;
+    console.log(month);
     this.month = month;
 
     this.wrangleData(function(d){ return (d.county == county);});

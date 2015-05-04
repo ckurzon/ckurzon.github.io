@@ -116,10 +116,6 @@ circle:hover{
     border-left: 1px solid #999;
 }
 
-#axis path{
-    fill: none;
-}
-
 #axis .tick line{
     stroke: #999;
 }
@@ -247,10 +243,10 @@ svg {
 .bar rect {
     fill: steelblue;
 }
-.axis path,
 .axis line {
-    fill: none;
+    fill: #666;
     stroke: #000;
+    stroke-width: 0.5px;
     shape-rendering: crispEdges;
 }
 .line {
