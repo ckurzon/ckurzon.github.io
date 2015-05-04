@@ -23,12 +23,15 @@
 <script src="libs/jquery/jquery-2.1.1.min.js" charset="utf-8"></script>
 <script src="libs/bootstrap/js/bootstrap.min.js" charset="utf-8"></script>
 
+
 <!--Time Slider-->
 <script src="libs/d3/d3.slider.js"></script>
 
 <!--Javascript files-->
-<script src="js/barvis.js"></script>
-<script src="js/dailyvis.js"></script>
+<!--<script src="js/barvis.js"></script>-->
+<!--<script src="js/dailyvis.js"></script>-->
+<script src="js/barvisNew.js"></script>
+<script src="js/dailyvisNew.js"></script>
 <script src="js/mapvis.js"></script>
 <script src="js/storyvis.js"></script>
 
@@ -62,13 +65,16 @@
         <div id="play" title="Play animation" class="col-sm-1"></div>
 
         <!--SLIDER-->
-        <div id="slider-container" class="col-sm-5">
-            Time: 2005 <input type="range" name="points" min="2005" max="2015" step="1" value="0" id="slider-time" width="500px"> 2015
+        <div id="slider7" class="col-sm-5" style="background-color: white">
+
+        <!--<div id="slider-container" class="col-sm-5" style="background-color: white">-->
+            <!--<input type="range" name="points" min="2005" max="2015" step="1" value="0" id="slider-time" >-->
             <!--<div id="slider-div"></div>-->
             <!--<div id="slider-probe"></div>-->
                 <!--<p></p>-->
                 <!--<div></div>-->
             <!--</div>-->
+
         </div>
 
     </div>
@@ -89,14 +95,18 @@
             <!--MONTHLY BARS-->
             <div class="row">
                 <div id="bar-container">
-                    <svg width = "300" height = "300" style="background-color: white"></svg>
+                    <!--<svg width = "300" height = "300" style="background-color: white"></svg>-->
+                    <svg width = "300" height = "300"></svg>
+
                 </div>
             </div>
             <!--DAILY LINES-->
             <div class="row">
 
                 <div id="line-container">
-                    <svg width = "300" height = "300" style="background-color: white"></svg>
+                    <!--<svg width = "300" height = "300" style="background-color: white"></svg>-->
+                    <svg width = "300" height = "300"></svg>
+
                 </div>
             </div>
         </div>
@@ -123,12 +133,12 @@
         var fipsToCountyMap = d3.map();
         var countyToFipsMap = d3.map();
 
-        var current_year = 2015;    // Current year selected
+        var current_year = 2005;    // Current year selected
 
         //Visualizations
         var map_vis;
         var bar_vis;
-        var daily_vis;              //TODO: Integrate Daily Data
+        var daily_vis;
 
         DEBUG = true;           // Global debug variable
 
@@ -140,14 +150,14 @@
             // Viz containers
             map_vis = new MapVis(d3.select("#map-container"), fipsToCountyMap, us_data, snow_data, current_year, MyEventHandler);
             bar_vis = new BarVis(d3.select("#bar-container"), snow_data, MyEventHandler);
-//            daily_vis = new DailyVis(d3.select("#line-container"), daily_data, current_year, MyEventHandler);
+            daily_vis = new DailyVis(d3.select("#line-container"), daily_data, current_year, MyEventHandler);
 
             // Trigger Bindings
             $(MyEventHandler).bind("selectionChanged", function (event, fips) {
                 bar_vis.onSelectionChange(fips, current_year);
             });
             $(MyEventHandler).bind("barClicked", function (event, d) {
-//                daily_vis.onBarClicked(d.county, d.month_num, current_year);
+                daily_vis.onBarClicked(d.values.fips, d.key, current_year);
             });
         }
 
@@ -158,10 +168,10 @@
                 .defer(d3.json, "../final/json/us.json")
                 .defer(d3.json, "../final/json/FipsCountyCodes.json")
                 .defer(d3.csv, "../final/data/snflMonthly.csv")
-//                .defer(d3.tsv, "../final/data/snflDaily.tsv")
+                .defer(d3.tsv, "../final/data/snfl_clean.tsv")
                 .await(ready);
 
-        function ready(error, us, fips, snfl){ //, daily_snfl) {
+        function ready(error, us, fips, snfl, daily_snfl) {
 
             if (DEBUG) console.log("Error: ", error);
 
@@ -171,23 +181,42 @@
             }
 
             //FIPS
-            ProcessData(us, fips, snfl) //, daily_snfl);
+            ProcessData(us, fips, snfl, daily_snfl);
 
             us_data = us;
             snow_data = snfl;
-//            daily_data = (daily_snfl);
+            daily_data = (daily_snfl);
 
             initVis();
         }
 
 
         //TODO: Jay Update slider mechanics
-        d3.select("#slider-time").on("input", function() {
-            //Slider Input
-            current_year = (this).value;
-            if(DEBUG) console.log(current_year);
-            map_vis.onSelectionChange(current_year);
-        });
+//        var slider = d3.slider()
+//                .min(2005)
+//                .max(2015);
+////                .ticks(11);
+
+//        d3.select("#slider-container")
+//                .on("input", function() {
+//                    //Slider Input
+//                    current_year = (this).value;
+//                    if (DEBUG) console.log(current_year);
+//                    map_vis.onSelectionChange(current_year);
+//                })
+//                .call(slider);
+
+        var slider = d3.slider().axis(d3.svg.axis().orient("bottom").ticks(11).tickFormat(d3.format("d")))
+                .min(2005).max(2015).step(1).value(2005)
+                .on("slide", function(evt, value) {
+                    current_year = value;
+                    if (DEBUG) console.log(current_year);
+                    map_vis.onSelectionChange(current_year);
+
+
+
+                });
+        d3.select('#slider7').call(slider);
 
 
         //TODO: Jay Update story mechanics
@@ -197,7 +226,8 @@
         //HELPERS
         /////////////////////////////////////////////////////////////////////////////////
 
-        function ProcessData(us, fips, snfl){ //, daily_snfl) {
+        //TODO: Update fips for daily*************
+        function ProcessData(us, fips, snfl, daily_snfl) {
             for (var i = 0; i < fips["table"]["rows"].length; i++) {
                 countyToFipsMap.set(fips["table"]["rows"][i][1].toUpperCase(), parseInt(fips["table"]["rows"][i][0], 10));
                 fipsToCountyMap.set(parseInt(fips["table"]["rows"][i][0], 10), fips["table"]["rows"][i][1].toUpperCase());
@@ -209,6 +239,12 @@
                 snfl[i]["fips"] = (countyFipsID == undefined) ? '' : parseInt(countyToFipsMap.get(stateCountyID), 10);
             }
             if (DEBUG) console.log("Done fips mapping");
+
+            for (var i = 0; i < daily_snfl.length; i++) {
+                var stateCountyID = daily_snfl[i].state + ", " + daily_snfl[i].county;
+                var countyFipsID = countyToFipsMap.get(stateCountyID);
+                daily_snfl[i]["fips"] = (countyFipsID == undefined) ? '' : parseInt(countyToFipsMap.get(stateCountyID), 10);
+            }
         }
     });
 

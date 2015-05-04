@@ -208,13 +208,13 @@ MapVis.prototype.initVis = function(){
             that.probe.style("display","none");
         })
         .on("click", function(d){
-            if (d3.event.defaultPrevented){
-                console.log("dragging");
-            }
-            else {
-                console.log(d);
-            }
-            //$(that.eventHandler).trigger("selectionChanged", d.id);
+            //if (d3.event.defaultPrevented){
+            //    console.log("dragging");
+            //}
+            //else {
+            //    console.log(d);
+            //}
+            $(that.eventHandler).trigger("selectionChanged", d.id);
         })
         .call(that.dragOnCounty);
 
@@ -383,7 +383,8 @@ MapVis.prototype.dragCountyEnd = function(d){
     if(!that.dragBool) {
 
         getMapInstance().setZoomCounty(d);
-        $(getMapInstance().eventHandler).trigger("selectionChanged", d3.event, d.id);
+        //$(getMapInstance().eventHandler).trigger("selectionChanged", d3.event, d.id);
+        d3.select(this).trigger("click");
 
     }
     else{
