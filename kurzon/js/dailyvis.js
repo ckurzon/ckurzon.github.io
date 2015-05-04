@@ -212,6 +212,7 @@ DailyVis.prototype.filterAndAggregate = function(fips){
 
     var that = this;
     var data = this.data.filter(function(d){ return (d.key == that.year)});
+    console.log(data);
     data = data[0].values;
     data = data.filter(function(d){return (d.key == that.month)});
     data = data[0].values;

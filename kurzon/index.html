@@ -168,7 +168,7 @@
                 .defer(d3.json, "../json/us.json")
                 .defer(d3.json, "../json/FipsCountyCodes.json")
                 .defer(d3.csv, "../data/new_snfl.csv")
-                .defer(d3.tsv, "../data/snfl.tsv")
+                .defer(d3.tsv, "../data/snfl_clean.tsv")
                 .await(ready);
 
         //function ready(error, us, fips, snfl, daily_snfl) {
