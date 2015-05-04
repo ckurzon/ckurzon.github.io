@@ -1,4 +1,8 @@
-MapVis = function(_parentElement, _fipsToCountyMap, _usData, _snflData, _currentYear, _eventHandler){
+MapVis = function(_parentElement, _fipsToCountyMap, _usData, _snflData, _currentYear, _startFips, _eventHandler){
+
+    //Years
+    this.minYear =2005;
+    this.maxYear =2015;
 
     this.parentElement = _parentElement;
     this.fipsToCountyMap = _fipsToCountyMap;
@@ -7,6 +11,7 @@ MapVis = function(_parentElement, _fipsToCountyMap, _usData, _snflData, _current
     this.snflData = this.organizeData(_snflData);
 
     this.currentYear = _currentYear;
+    this.startFips = _startFips;
 
     this.eventHandler = _eventHandler;
     this.displayData = d3.map();
@@ -32,17 +37,24 @@ MapVis = function(_parentElement, _fipsToCountyMap, _usData, _snflData, _current
 
     //Drag Selection
     this.radius = 20;
+    this.maxRad = 200;
+    this.maxRadZoom = 80;
+    this.minRad = 10;
+
+    this.zoomScaleMin = 0.3;
+    this.zoomScaleMax = 4.35;
 
     this.minProximity = 0.25;
     this.maxProximity = 2.5;
 
-    this.sortedCountiesByClick;
+    this.selectedCountyFips = new Array();
+    this.maxDistInProximity = 0.00;
 
     //Legend els
     this.legendRectWidth = 20;
     this.legendRectHeight = 20;
 
-    //TODO Update Legeng Variables
+    //TODO Update Legend Variables
     this.color_domain = [1, 2, 4, 8, 10, 20, 35, 60, 110];
     this.ext_color_domain = [0, 1, 2, 4, 8, 10, 20, 35, 60];
     this.legend_labels = [
@@ -94,7 +106,7 @@ MapVis.prototype.organizeData = function(givenData){
         .map(givenData);
 
 
-    for (var i=2005; i<=2015; i++) {
+    for (var i=this.minYear; i<=this.maxYear; i++) {
         var aggregatedMapping = d3.map();
         var data = snflDataNested[i];
 
@@ -139,10 +151,12 @@ MapVis.prototype.initVis = function(){
 
     this.dragProximityCircle = d3.behavior.drag()
         .origin(function(d) { return d; })
-        .on("drag", that.dragProximityMove);
+        .on("dragstart", that.dragProximityStart)
+        .on("drag", that.dragProximityMove)
+        .on("dragend", that.dragProximityEnd);
 
     this.zoom = d3.behavior.zoom()
-        .scaleExtent([1,10])
+        .scaleExtent([0.3,4.35])
         .on("zoom", that.zoomOnCounty);
 
     //INIT Thresholds
@@ -191,8 +205,6 @@ MapVis.prototype.initVis = function(){
         .append("path")
         .attr("vector-effect","non-scaling-stroke")
         .attr("d", that.path)
-        .on("mouseover", function(d){
-        })
         .on("mousemove",function(d){
             that.hoverData = d;
             that.setProbeContent(d);
@@ -206,15 +218,6 @@ MapVis.prototype.initVis = function(){
         .on("mouseout",function(){
             that.hoverData = null;
             that.probe.style("display","none");
-        })
-        .on("click", function(d){
-            //if (d3.event.defaultPrevented){
-            //    console.log("dragging");
-            //}
-            //else {
-            //    console.log(d);
-            //}
-            $(that.eventHandler).trigger("selectionChanged", d.id);
         })
         .call(that.dragOnCounty);
 
@@ -232,13 +235,28 @@ MapVis.prototype.initVis = function(){
         .attr("d", that.path);
 
     this.proximityCircle = this.map.selectAll("circle")
-        .data( [{x: 200, y: 200}] )
+        .data( [{x: 0, y: 0}] )
         .enter()
         .append("circle")
         .attr("id", "proximity-circle")
         .attr("r", that.radius)
         .attr("cx", function(d) {return d.x;})
         .attr("cy", function(d) {return d.y;})
+        .classed("proximity-hidden", true)
+        .on("mousemove",function(d){
+            that.hoverData = d;
+            that.setProximityProbeContent();
+            that.probe
+                .style( {
+                    "display" : "block",
+                    "top" : d3.event.pageY + that.hoverYOffset + "px",
+                    "left" : d3.event.pageX + that.hoverXOffset + "px"
+                });
+        })
+        .on("mouseout",function(){
+            that.hoverData = null;
+            that.probe.style("display","none");
+        })
         .call(that.dragProximityCircle)
         .call(that.zoom);
 
@@ -308,8 +326,9 @@ MapVis.prototype.updateVis = function(){
 
         });
 
-    if(DEBUG) console.log("Map ready");
-    if(DEBUG) console.log("max_snfl threshold = ", that.snflMax);
+    if (that.selectedCountyFips.length>0){
+        that.UpdateSelectedCounties();
+    }
 
 }
 
@@ -322,6 +341,7 @@ MapVis.prototype.updateVis = function(){
 MapVis.prototype.onSelectionChange = function (year){
 
     //this.wrangleData(function(d){ return d.year == year;});
+    this.currentYear = year;
     this.wrangleData(year);
     this.updateVis();
 }
@@ -344,31 +364,56 @@ MapVis.prototype.dragCountyMove = function(d) {
 
     that.dragBool = true;
     that.proximityEnd = d3.mouse(this);
+
     that.radius = Math.sqrt(
         Math.pow(that.proximityEnd[0] - that.proximityStart[0], 2) +
         Math.pow(that.proximityEnd[1] - that.proximityStart[1], 2)
     );
 
-    d3.select("#proximity-circle")
-        .attr("r", that.radius);
+    //New
+    var maxRadToUse = (that.centered == null) ? that.maxRad : that.maxRadZoom;
+    that.radius = Math.min(that.radius, maxRadToUse);
 
-    //UpdateSelectedCounties();
+    d3.select("#proximity-circle")
+        .attr("r", that.radius)
+        .classed("proximity-hidden", false);
+
+    that.maxDistInProximity = that.radius;
+    that.UpdateSelectedCounties();
+    //console.log("still dragging");
 }
 
 MapVis.prototype.dragCountyStart = function(d) {
+
+    d3.event.scale = 1;
+
     var that = getMapInstance();
 
     that.dragBool = false;
     that.proximityStart = d3.mouse(this);
 
+    that.radius = 0;
+
     d3.select("#proximity-circle")
+        .attr("r", that.radius)
         .attr("cx", that.proximityStart[0])
-        .attr("cy", that.proximityStart[1]);
+        .attr("cy", that.proximityStart[1])
+        .classed("proximity-hidden", true);
+
+    that.maxDistInProximity = that.radius;
+    that.UpdateSelectedCounties();
+
+
+
 }
 
 MapVis.prototype.dragCountyEnd = function(d){
 
+
     var that = getMapInstance();
+    var county = d;
+
+    that.selectedCountyFips = new Array();
 
     that.proximityEnd = d3.mouse(this);
     that.radius = Math.sqrt(
@@ -376,15 +421,23 @@ MapVis.prototype.dragCountyEnd = function(d){
         Math.pow(that.proximityEnd[1] - that.proximityStart[1], 2)
     );
 
+    //New
+    var maxRadToUse = (that.centered == null) ? that.maxRad : that.maxRadZoom;
+    that.radius = Math.min(that.radius, maxRadToUse);
+
     d3.select("#proximity-circle")
         .attr("r", that.radius);
 
-    //TODO: Fix Zooming,clicking,fire events
+    that.maxDistInProximity = that.radius;
+
     if(!that.dragBool) {
 
-        getMapInstance().setZoomCounty(d);
-        //$(getMapInstance().eventHandler).trigger("selectionChanged", d3.event, d.id);
-        d3.select(this).trigger("click");
+        that.selectedCountyFips.push(county.id);
+
+        that.setZoomCounty(d);
+
+        d3.event.sourceEvent.stopPropagation();
+        $(that.eventHandler).trigger("selectionChanged", {values: that.selectedCountyFips});
 
     }
     else{
@@ -392,11 +445,31 @@ MapVis.prototype.dragCountyEnd = function(d){
     }
 }
 
+MapVis.prototype.dragProximityStart = function(d) {
+    var that = getMapInstance();
+
+    that.dragProximityBool = true;
+
+}
+
+MapVis.prototype.dragProximityEnd = function(d) {
+    var that = getMapInstance();
+
+    that.dragProximityBool = false;
+}
+
 MapVis.prototype.dragProximityMove = function(d) {
+
+    var that = getMapInstance();
+
 
     d3.select("#proximity-circle")
         .attr("cx", d3.mouse(this)[0])
         .attr("cy", d3.mouse(this)[1]);
+
+    that.proximityStart = d3.mouse(this);
+
+    that.UpdateSelectedCounties();
 }
 ///////////////////////////////////////////////////////////////
 
@@ -406,16 +479,64 @@ MapVis.prototype.UpdateSelectedCounties = function() {
 
     var that = getMapInstance();
 
-    var maxDist = that.radius;
-    that.counties.selectAll("path")
-        .each( function(d){
+    //
+    //that.counties.selectAll("path")
+    //    .each( function(d){
+    //        //console.log(d);
+    //        var dist = Math.sqrt(
+    //            Math.pow(d["XY"][0] - that.proximityStart[0], 2) +
+    //            Math.pow(d["XY"][1] - that.proximityStart[1], 2)
+    //        );
+    //        d3.select(this).classed("active", (dist <= maxDist));
+    //        if (dist <= maxDist){
+    //            countyArray.push(d.id);
+    //        }
+    //});
+    ////
+    that.selectedCountyFips = new Array();
+    var stillMatching = true;
+
+
+    that.counties.selectAll("path").sort(function (a, b) {
+        var distA = Math.sqrt(
+            Math.pow(a["XY"][0] - that.proximityStart[0], 2) +
+            Math.pow(a["XY"][1] - that.proximityStart[1], 2)
+        );
+
+        var distB = Math.sqrt(
+            Math.pow(b["XY"][0] - that.proximityStart[0], 2) +
+            Math.pow(b["XY"][1] - that.proximityStart[1], 2)
+        );
+
+        return distA - distB;
+    })
+        .classed("active", false)
+
+        //that.counties.selectAll("path")
+        .each(function (d) {
             //console.log(d);
-            var dist = Math.sqrt(
-                Math.pow(d["XY"][0] - that.proximityStart[0], 2) +
-                Math.pow(d["XY"][1] - that.proximityStart[1], 2)
-            );
-            d3.select(this).classed("active", (dist <= maxDist));
-    });
+            if (stillMatching) {
+                var dist = Math.sqrt(
+                    Math.pow(d["XY"][0] - that.proximityStart[0], 2) +
+                    Math.pow(d["XY"][1] - that.proximityStart[1], 2)
+                );
+                if (dist <= that.maxDistInProximity) {
+                    d3.select(this).classed("active", true);
+                    that.selectedCountyFips.push(d.id);
+                }
+                else {
+                    stillMatching = false;
+                }
+            }
+        });
+
+
+    if (d3.event.sourceEvent == !undefined) {
+        d3.event.sourceEvent.stopPropagation();
+    }
+
+    $(that.eventHandler).trigger("selectionChanged", {values: that.selectedCountyFips});
+
 }
 
 
@@ -429,26 +550,64 @@ MapVis.prototype.setProbeContent = function(d){
     var fipsNotLocated = that.fipsToCountyMap.get(d.id) == undefined;
 
     var html = "<strong>" + ((fipsNotLocated) ? d.id : that.fipsToCountyMap.get(d.id)) + "</strong><br/>" +
-        ((!snowNotRecorded) ? parseFloat(that.displayData.get(d.id)).toFixed(2) : "Not Recorded") + "<br/>" +
+        ((!snowNotRecorded) ? (parseFloat(that.displayData.get(d.id)).toFixed(2) +  " in") : "Not Recorded") + "<br/>" +
         "<span>" + that.currentYear + "</span>";
     this.probe
         .html( html );
 }
 
-//TODO: fix adjustable size of circle brush by zooming
+MapVis.prototype.setProximityProbeContent = function(){
+
+    var that = getMapInstance();
+
+    var sourceCountyName = undefined;
+
+    var sourceCountyExists = (that.selectedCountyFips.length>0);
+    if (sourceCountyExists){
+        sourceCountyName = that.fipsToCountyMap.get(that.selectedCountyFips[0]);
+    }
+
+    var fipsNotLocated = (sourceCountyName == undefined || !sourceCountyExists) ;
+
+    var html = "<strong>" + ((fipsNotLocated) ? "None" : sourceCountyName) + "</strong><br/>" +
+        (that.maxDistInProximity).toFixed(2) + " mi" + "<br/>" +
+        "<span>" + that.currentYear + "</span>";
+    this.probe
+        .html( html );
+}
+
 ///////////////////////////////////////////////////////////////
 MapVis.prototype.zoomOnCounty = function(d){
 
     var that = getMapInstance();
 
-    var minValue = Math.min(that.radius * 0.001, 0.05);
-    var maxValue = Math.max(that.radius * 5, 400);
+    //var minValue = Math.max(that.radius * 0.001, 0.05);
+    //var maxValue = Math.min(that.radius * 5, 400);
 
-    var factor = Math.max( minValue, Math.min(d3.event.scale, maxValue));
-    //console.log(factor);
+    if (!that.dragProximityBool) {
 
-    d3.select("#proximity-circle")
-        .attr("r", that.radius * factor);
+        if (d3.event.scale >= that.zoomScaleMax) {
+            d3.event.scale = that.zoomScaleMax;
+        }
+        else if (d3.event.scale <= that.zoomScaleMin) {
+            d3.event.scale = that.zoomScaleMin;
+        }
+        else {
+
+            //New
+            var maxRadToUse = (that.centered == null) ? that.maxRad : that.maxRadZoom;
+
+            var factor = Math.max(that.zoomScaleMin, Math.min(d3.event.scale, that.zoomScaleMax));
+            var deltaRad = Math.max(that.minRad, Math.min(that.radius * factor, maxRadToUse));
+            //console.log(factor);
+
+            d3.select("#proximity-circle")
+                .attr("r", deltaRad);
+
+            that.maxDistInProximity = deltaRad;
+            that.UpdateSelectedCounties();
+        }
+    }
 }
 
 //Zoom when select/deselect county

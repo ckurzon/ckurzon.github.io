@@ -179,7 +179,7 @@ DailyVis.prototype.onBarClicked = function (fips,month,year){
     if (month.length < 2)
         month = "0" + month;
     this.month = month;
-    console.log(fips);
+
     this.wrangleData(fips);
     this.updateVis();
 }
@@ -213,13 +213,9 @@ DailyVis.prototype.filterAndAggregate = function(fips){
     var that = this;
     var data = this.data.filter(function(d){ return (d.key == that.year)});
 
-    //console.log(data);
-    //console.log(data[0]);
 
     data = data[0].values;
     data = data.filter(function(d){return (d.key == that.month)});
-
-    console.log(data)
 
     data = data[0].values;
     var all_counties = [];

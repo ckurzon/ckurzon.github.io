@@ -23,6 +23,7 @@ html, body{
 }
 
 circle{
+    display:block;
     fill: black;
     stroke: #999;
 }
@@ -312,6 +313,11 @@ if it's not present, don't show loader */
 /*#counties .q6-9.active { fill:red; }*/
 /*#counties .q7-9.active { fill:red; }*/
 /*#counties .q8-9.active { fill:red; }*/
+
+
+#proximity-circle .proximity-hidden{
+    opacity: 0.0;
+}
 
 
 

@@ -57,7 +57,7 @@
 
         <div id="date" class="col-sm-2">
             <p id="month">
-                <span>YEAR </span>" 2005"
+                <span>YEAR </span>' 2005'
             </p>
         </div>
 
@@ -65,16 +65,10 @@
         <div id="play" title="Play animation" class="col-sm-1"></div>
 
         <!--SLIDER-->
-        <div id="slider7" class="col-sm-5" style="background-color: white">
+        <!--<div id="slider7" class="col-sm-5" style="background-color: white">-->
 
-        <!--<div id="slider-container" class="col-sm-5" style="background-color: white">-->
-            <!--<input type="range" name="points" min="2005" max="2015" step="1" value="0" id="slider-time" >-->
-            <!--<div id="slider-div"></div>-->
-            <!--<div id="slider-probe"></div>-->
-                <!--<p></p>-->
-                <!--<div></div>-->
-            <!--</div>-->
-
+        <div id="slider-container" class="col-sm-5" style="background-color: white">
+            <input type="range" name="points" min="2005" max="2015" step="1" value="0" id="slider-time" >
         </div>
 
     </div>
@@ -133,7 +127,9 @@
         var fipsToCountyMap = d3.map();
         var countyToFipsMap = d3.map();
 
-        var current_year = 2005;    // Current year selected
+        //Preselect what is seen on start :)
+        var current_year = 2005;
+        var startFips = [53035, 53033];
 
         //Visualizations
         var map_vis;
@@ -148,14 +144,18 @@
             var MyEventHandler = new Object();  //Keep track of events
 
             // Viz containers
-            map_vis = new MapVis(d3.select("#map-container"), fipsToCountyMap, us_data, snow_data, current_year, MyEventHandler);
-            bar_vis = new BarVis(d3.select("#bar-container"), snow_data, MyEventHandler);
+            map_vis = new MapVis(d3.select("#map-container"), fipsToCountyMap, us_data, snow_data, current_year, startFips, MyEventHandler);
+            bar_vis = new BarVis(d3.select("#bar-container"), snow_data, current_year, startFips, MyEventHandler);
             daily_vis = new DailyVis(d3.select("#line-container"), daily_data, current_year, MyEventHandler);
 
             // Trigger Bindings
-            $(MyEventHandler).bind("selectionChanged", function (event, fips) {
-                bar_vis.onSelectionChange(fips, current_year);
+            $(MyEventHandler).bind("selectionChanged", function (event, fipObj) {
+                //arrays are by default expected to be extra parameters for an event trigger
+                //Need to pass it in as a single element to keep track of all fips
+                //Originally registered it as a list of parameters (not values)...
+                bar_vis.onSelectionChange(fipObj.values, current_year);
             });
+            // That's why this works (d is a single element preceding event object )
             $(MyEventHandler).bind("barClicked", function (event, d) {
                 daily_vis.onBarClicked(d.values.fips, d.key, current_year);
             });
@@ -163,7 +163,6 @@
 
         if (DEBUG) console.log("loading files");
 
-        //TODO Refactor data
         queue()
                 .defer(d3.json, "../final/json/us.json")
                 .defer(d3.json, "../final/json/FipsCountyCodes.json")
@@ -192,31 +191,12 @@
 
 
         //TODO: Jay Update slider mechanics
-//        var slider = d3.slider()
-//                .min(2005)
-//                .max(2015);
-////                .ticks(11);
-
-//        d3.select("#slider-container")
-//                .on("input", function() {
-//                    //Slider Input
-//                    current_year = (this).value;
-//                    if (DEBUG) console.log(current_year);
-//                    map_vis.onSelectionChange(current_year);
-//                })
-//                .call(slider);
-
-        var slider = d3.slider().axis(d3.svg.axis().orient("bottom").ticks(11).tickFormat(d3.format("d")))
-                .min(2005).max(2015).step(1).value(2005)
-                .on("slide", function(evt, value) {
-                    current_year = value;
-                    if (DEBUG) console.log(current_year);
-                    map_vis.onSelectionChange(current_year);
-
-
-
-                });
-        d3.select('#slider7').call(slider);
+        d3.select("#slider-time").on("input", function() {
+            //Slider Input
+            current_year = (this).value;
+            d3.select("#month").html("<span>" + "YEAR" + "</span>" + "' " + current_year +"'");
+            map_vis.onSelectionChange(current_year);
+        });
 
 
         //TODO: Jay Update story mechanics
@@ -226,7 +206,6 @@
         //HELPERS
         /////////////////////////////////////////////////////////////////////////////////
 
-        //TODO: Update fips for daily*************
         function ProcessData(us, fips, snfl, daily_snfl) {
             for (var i = 0; i < fips["table"]["rows"].length; i++) {
                 countyToFipsMap.set(fips["table"]["rows"][i][1].toUpperCase(), parseInt(fips["table"]["rows"][i][0], 10));

@@ -12,12 +12,14 @@
  * @param _eventHandler -- the Eventhandling Object to emit data to (see Task 4)
  * @constructor
  */
-BarVis = function(_parentElement, _data, _eventHandler){
+BarVis = function(_parentElement, _data, _currentYear, _startFips, _eventHandler){
     this.parentElement = _parentElement;
     this.data = _data;
     this.eventHandler = _eventHandler;
     this.displayData = [];
-    this.fips = [23003, 23021,2185];
+
+    this.currentYear = _currentYear;
+    this.fips = _startFips;
 
     // defines constants
     this.margin = {top: 100, right: 20, bottom: 30, left: 20},
@@ -73,7 +75,7 @@ BarVis.prototype.initVis = function(){
     //this.svg.call( that.tip );
     // filter, aggregate, modify data
     //this.wrangleData(function(d){ return (d.state == "CO" && d.year == 2005);});
-    this.wrangleData(that.fips,2005);
+    this.wrangleData(that.fips,that.currentYear);
 
     // call the update method
     this.updateVis();
@@ -235,6 +237,7 @@ BarVis.prototype.filterAndAggregate = function(fips,year){
     var that = this;
 
     var data = this.data.filter(function(d){return d.year == year});
+
     var res = [];
     for (i = 0; i<fips.length; i++) {
         data.map(function(d) {
@@ -258,6 +261,7 @@ BarVis.prototype.filterAndAggregate = function(fips,year){
      .rollup(function(leaves) { return {"snow_fall": d3.sum(leaves, function(d) {
      return d.monthly})}})
      .entries(data);*/
+
     return aggregated_data;
 
 }
