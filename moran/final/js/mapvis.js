@@ -88,6 +88,12 @@ MapVis = function(_parentElement, _fipsToCountyMap, _usData, _snflData, _current
         ])
         .clamp(true);
 
+    //this.colorpow = chroma.scale(['c5c8ea', 'aaaddd', '828dc1', '545d89','3d4365']).domain([1, 100], 8, 'log');   
+    this.colorpow = chroma.scale(['bcbaf2', '9998c5', '767592', '514c76','20194b']).domain([1, 100], 8, 'log');
+    //this.colorpow = chroma.scale(['a4abd6', '69709e', '3a4071', '1f264f','0a0e28']).domain([1, 100], 8, 'log');  
+    //this.colorpow = chroma.scale(['eaf1fe', '76a2ee', '3475e4','094cbf','052356']).domain([1, 100], 8, 'log');   
+ 
+
     //Global Map Reference
     map_instance = this;
 
@@ -160,9 +166,10 @@ MapVis.prototype.initVis = function(){
         .on("zoom", that.zoomOnCounty);
 
     //INIT Thresholds
+    /*
     this.quantize = d3.scale.quantize()
         .domain([that.snflMin, that.snflMax])
-        .range(d3.range(that.quantizeRange).map(function(i) { return "q" + i + "-9"; }));
+        .range(d3.range(that.quantizeRange).map(function(i) { return "q" + i + "-9"; }));*/
 
     //INIT MAP
     this.projection = d3.geo.albersUsa()
@@ -315,7 +322,16 @@ MapVis.prototype.updateVis = function(){
     var that = this;
 
     this.counties.selectAll("path")
-        .attr("class", function(d) {
+        .style("fill", function(d) {
+            var val = that.displayData.get(d.id);
+            if (val != undefined) {
+                return that.colorpow(val).hex();
+            }
+            else{
+                return "grey";
+            }
+        });
+        /*.attr("class", function(d) {
             var val = that.displayData.get(d.id);
             if (val != undefined) {
                 return that.quantize(val);
@@ -324,7 +340,7 @@ MapVis.prototype.updateVis = function(){
                 return "qNone-9";
             }
 
-        });
+        });*/
 
     if (that.selectedCountyFips.length>0){
         that.UpdateSelectedCounties();

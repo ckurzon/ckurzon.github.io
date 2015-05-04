@@ -78,7 +78,7 @@ DailyVis.prototype.initVis = function(){
         .data(that.displayData)
         .enter().append("circle")
         .attr("class", "circle")
-        .attr("r", 2)
+        .attr("r", 3)
         .attr("cx", function(d) { return that.x(d.day); })
 
     this.updateVis();

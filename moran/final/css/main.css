@@ -241,7 +241,7 @@ svg {
     cursor: pointer;
 }
 .bar rect {
-    fill: steelblue;
+    fill: #514c76;
 }
 .axis line {
     fill: #666;
@@ -251,11 +251,11 @@ svg {
 }
 .line {
     fill: none;
-    stroke: steelblue;
-    stroke-width: 0.5px;
+    stroke: #514c76;
+    stroke-width: 2.5px;
 }
 .area {
-    fill: steelblue;
+    fill: #514c76;
     clip-path: url(#clip);
 }
 

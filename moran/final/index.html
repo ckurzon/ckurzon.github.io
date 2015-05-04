@@ -34,6 +34,7 @@
 <script src="js/dailyvisNew.js"></script>
 <script src="js/mapvis.js"></script>
 <script src="js/storyvis.js"></script>
+<script type="text/javascript" src="js/chroma.js"></script>
 
 <body>
 <div id="container">
@@ -89,7 +90,6 @@
             <!--MONTHLY BARS-->
             <div class="row">
                 <div id="bar-container">
-                    <!--<svg width = "300" height = "300" style="background-color: white"></svg>-->
                     <svg width = "300" height = "300"></svg>
 
                 </div>
@@ -98,7 +98,6 @@
             <div class="row">
 
                 <div id="line-container">
-                    <!--<svg width = "300" height = "300" style="background-color: white"></svg>-->
                     <svg width = "300" height = "300"></svg>
 
                 </div>
@@ -157,6 +156,7 @@
             });
             // That's why this works (d is a single element preceding event object )
             $(MyEventHandler).bind("barClicked", function (event, d) {
+                console.log("clicked");
                 daily_vis.onBarClicked(d.values.fips, d.key, current_year);
             });
         }
