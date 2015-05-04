@@ -1,6 +1,8 @@
 <title>World Snow Depth</title>
 <head>
-  <link rel="stylesheet" href="d3.slider.css" /> 
+  <link rel="stylesheet" type = "text/css" href="d3.slider.css" media="screen"/> 
+  <link rel="stylesheet" type="text/css" href="d3.sliderT.css" media="screen" />
+  <link rel="stylesheet" type="text/css" href="d3.sliderX.css" media="screen" />
   <style>
 
 .graticule {
@@ -61,7 +63,10 @@
 <body>
 <div class="wrapper">
   <div id="slider1"></div>
+  <span id="slider-button"><input type='button' value='button'/></span>
+  <div id="slider_b"></div>    
 </div>
+<div id="slider"></div>
 Time: 2005 <input type="range" name="points" min="2005" max="2015" step="1" value="0" id="slider-time" oninput="year_value();"> 2015
 
 <table style="width:20%">
@@ -105,7 +110,21 @@ Time: 2005 <input type="range" name="points" min="2005" max="2015" step="1" valu
 <script src="http://d3js.org/topojson.v1.min.js"></script>
 <script src="d3.slider.js"></script>
 <script>
-    d3.select('#slider1').call(d3.slider().axis(true).min(2005).max(2015).step(1));
+   d3.select('#slider1').call(d3.slider().axis(true).min(2005).max(2015).step(1));
+</script>
+<script src="d3.sliderX.js"></script>
+<script>
+    var slider = d3.slider().axis(true);
+    var pos = 0;
+    d3.select('#slider-button').on('click', function() { slider.slide_to(++pos); });
+    d3.select('#slider_b').call(slider);
+</script>
+<script src="d3.sliderT.js"></script>
+<script>
+// Initialize slider
+var slider = d3.slider().min(2005).max(2015).ticks(10).showRange(true).value(2005);
+// Render the slider in the div
+d3.select('#slider').call(slider);
 </script>
   <form>
     <label><input type="radio" name="layout" value="by_state"> Snowfall by State </label> 
