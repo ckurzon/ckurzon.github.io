@@ -114,7 +114,7 @@
 
 
     <!--FOOTER-->
-    <div id="footer-container" style="background-color: white">
+    <div id="footer-container">
         Customize Footer to Mention Authors and Acknowledgements...
     </div>
 </div>
@@ -133,7 +133,7 @@
         var fipsToCountyMap = d3.map();
         var countyToFipsMap = d3.map();
 
-        var current_year = 2005;    // Current year selected
+        var current_year = 2007;    // Current year selected
 
         //Visualizations
         var map_vis;
@@ -165,10 +165,10 @@
 
         //TODO Refactor data
         queue()
-                .defer(d3.json, "../final/json/us.json")
-                .defer(d3.json, "../final/json/FipsCountyCodes.json")
-                .defer(d3.csv, "../final/data/snflMonthly.csv")
-                .defer(d3.tsv, "../final/data/snfl_clean.tsv")
+                .defer(d3.json, "../json/us.json")
+                .defer(d3.json, "../json/FipsCountyCodes.json")
+                .defer(d3.csv, "../data/snflMonthly.csv")
+                .defer(d3.tsv, "../data/snfl_clean.tsv")
                 .await(ready);
 
         function ready(error, us, fips, snfl, daily_snfl) {
@@ -212,9 +212,6 @@
                     current_year = value;
                     if (DEBUG) console.log(current_year);
                     map_vis.onSelectionChange(current_year);
-
-
-
                 });
         d3.select('#slider7').call(slider);
 

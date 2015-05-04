@@ -20,7 +20,7 @@ BarVis = function(_parentElement, _data, _eventHandler){
     this.fips = [23003, 23021,2185];
 
     // defines constants
-    this.margin = {top: 100, right: 20, bottom: 30, left: 20},
+    this.margin = {top: 0, right: 20, bottom: 100, left: 20},
         this.width = 300 - this.margin.left - this.margin.right,
         this.height = 300 - this.margin.top - this.margin.bottom;
     this.initVis();
@@ -54,6 +54,7 @@ BarVis.prototype.initVis = function(){
         .ticks(8)
         .orient("bottom");
 
+
     this.yAxis = d3.svg.axis()
         .scale(this.y)
         .orient("left");
@@ -62,6 +63,14 @@ BarVis.prototype.initVis = function(){
     this.svg.append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(0," + this.height + ")");
+
+    this.svg.append("g")
+        .attr("class", "y axis")
+      .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", ".71em")
+        .style("text-anchor", "end")
 
     //this.tip = d3.tip()
     //    .attr('class', 'd3-tip')
@@ -107,7 +116,7 @@ BarVis.prototype.updateVis = function(){
 
     // updates axis
 
-    this.x.domain(this.displayData.map(function(d,i) { return months[(parseInt(d.key))-1]; }));
+    this.x.domain(months);
     var range = d3.extent(this.displayData, function(d) { return d.values.snow_fall; });
     range[1] = (parseFloat(range[1]) + 10.0).toString();
     this.y.domain(range);
@@ -151,10 +160,14 @@ BarVis.prototype.updateVis = function(){
         })
 
     var yaxis = this.svg.select(".y.axis")
+        .style("fill","white")
         .call(this.yAxis)
+   
+
 
 
     var xaxis = this.svg.select(".x.axis")
+        .style("fill","white")
         .call(this.xAxis)
         .selectAll("text")
         .style("text-anchor", "end")
