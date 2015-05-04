@@ -70,7 +70,7 @@ DailyVis.prototype.initVis = function(){
      .attr("stroke", "black")
 
   // filter, aggregate, modify data
-  this.wrangleData(function(d){ return (d.county == "AROOSTOOK");});
+  this.wrangleData([23003, 23021,2185]);
   // call the update method
 
   this.x.domain([1,31]);
@@ -90,10 +90,10 @@ DailyVis.prototype.initVis = function(){
  * Method to wrangle the data. In this case it takes an options object
  * @param _filterFunction - a function that filters data or "null" if none
  */
-DailyVis.prototype.wrangleData= function(_filterFunction){
+DailyVis.prototype.wrangleData= function(fips){
 //AgeVis.prototype.wrangleData= function(){
     // displayData should hold the data which is visualized
-    this.displayData = this.filterAndAggregate(_filterFunction);
+    this.displayData = this.filterAndAggregate(fips);
 
 
 }
@@ -172,15 +172,15 @@ DailyVis.prototype.updateVis = function(){
  * be defined here.
  * @param selection
  */
-DailyVis.prototype.onBarClicked = function (county,month,year){
+DailyVis.prototype.onBarClicked = function (fips,month,year){
     var that = this;
 
     this.year = year;
     if (month.length < 2)
       month = "0" + month;
     this.month = month;
-
-    this.wrangleData(function(d){ return (d.county == county);});
+    console.log(fips);
+    this.wrangleData(fips);
     this.updateVis();
 }
 
@@ -207,37 +207,31 @@ DailyVis.prototype.organizeData = function(){
  * @param _filter - A filter can be, e.g.,  a function that is only true for data of a given time range
  * @returns {Array|*}
  */
-DailyVis.prototype.filterAndAggregate = function(_filter){
+DailyVis.prototype.filterAndAggregate = function(fips){
 
-
-    // Set filter to a function that accepts all items
-    // ONLY if the parameter _filter is NOT null use this parameter
-    var filter = function(){return true;}
-    if (_filter != null){
-        filter = _filter;
-    }
-    //Dear JS hipster, a more hip variant of this construct would be:
-    // var filter = _filter || function(){return true;}
 
     var that = this;
     var data = this.data.filter(function(d){ return (d.key == that.year)});
     data = data[0].values;
     data = data.filter(function(d){return (d.key == that.month)});
     data = data[0].values;
-    data = data.filter(filter);
-    var res = [];
+    var all_counties = [];
+    for (i = 0; i<fips.length; i++) {
+      data.map(function(d) {
+      if (d.fips == fips[i])
+        all_counties.push(d);
+      })
+    }
     var new_data = d3.range(31).map(function () {
         return 0;
     });
     var snfls = [];
 
-    for (var i = 0; i<data.length; i++) {
-      var temp = ExtractSnflDailyVals(data[i]);
+    for (var i = 0; i<all_counties.length; i++) {
+      var temp = ExtractSnflDailyVals(all_counties[i]);
       snfls.push(temp);
     }
 
-    var dailySnfl = ExtractSnflDailyVals(data[0]);
-    
     for (var i = 0; i <= 30; i++){
       for (var j = 0; j < snfls.length; j++) {
         new_data[i] += ((snfls[j][i] > 0) ? snfls[j][i] : 0);
@@ -245,6 +239,7 @@ DailyVis.prototype.filterAndAggregate = function(_filter){
       new_data[i] = new_data[i]/snfls.length;
     }
 
+    var res = [];
     new_data.map(function (d,i) { 
         obj = {"snowfall": d, "day": i+1};
         res.push(obj);

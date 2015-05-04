@@ -17,6 +17,7 @@ BarVis = function(_parentElement, _data, _eventHandler){
     this.data = _data;
     this.eventHandler = _eventHandler;
     this.displayData = [];
+    this.fips = [23003, 23021,2185];
 
     // defines constants
     this.margin = {top: 100, right: 20, bottom: 30, left: 20},
@@ -66,13 +67,13 @@ BarVis.prototype.initVis = function(){
       .attr('class', 'd3-tip')
       .offset([-10, 0])
       .html(function(d) {
-      return "<strong>Snowfall</strong> <span style='color:red'>" + d.monthly + "</span>";
+      return "<strong>Snowfall</strong> <span style='color:red'>" + d.values.snow_fall + "</span>";
       })
 
     this.svg.call( that.tip );
     // filter, aggregate, modify data
     //this.wrangleData(function(d){ return (d.state == "CO" && d.year == 2005);});
-    this.wrangleData(function(d){ return (d.fips == 23003 && d.year == 2005);});
+    this.wrangleData(that.fips,2005);
 
     // call the update method
     this.updateVis();
@@ -83,10 +84,10 @@ BarVis.prototype.initVis = function(){
  * Method to wrangle the data. In this case it takes an options object
  * @param _filterFunction - a function that filters data or "null" if none
  */
-BarVis.prototype.wrangleData= function(_filterFunction){
+BarVis.prototype.wrangleData= function(fips,year){
 
     // displayData should hold the data whiche is visualized
-    this.displayData = this.filterAndAggregate(_filterFunction);
+    this.displayData = this.filterAndAggregate(fips,year);
     //// you might be able to pass some options,
     //// if you don't pass options -- set the default options
     //// the default is: var options = {filter: function(){return true;} }
@@ -102,18 +103,19 @@ BarVis.prototype.updateVis = function(){
 
 
     var that = this;
-
+    var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  
     // updates axis
 
-    this.x.domain(this.displayData.map(function(d,i) { return d.month; }));
-    var range = d3.extent(this.displayData, function(d) { return d.monthly; });
+    this.x.domain(this.displayData.map(function(d,i) { return months[(parseInt(d.key))-1]; }));
+    var range = d3.extent(this.displayData, function(d) { return d.values.snow_fall; });
     range[1] = (parseFloat(range[1]) + 10.0).toString();
     this.y.domain(range);
     // updates graph
 
     // Data join
     var bar = this.svg.selectAll(".bar")
-      .data(this.displayData, function(d,i) { return d.month; })
+      .data(this.displayData, function(d,i) { return months[(parseInt(d.key))-1]; })
       
     // Append new bar groups, if required
     var bar_enter = bar.enter().append("g")
@@ -129,7 +131,7 @@ BarVis.prototype.updateVis = function(){
     bar
       .attr("class", "bar")
       .transition()
-      .attr("transform", function(d, i) { return "translate(" + that.x(d.month) + ",0)"; })
+      .attr("transform", function(d, i) { return "translate(" + that.x(months[(parseInt(d.key))-1]) + ",0)"; })
 
 
     // Remove the extra bars
@@ -143,9 +145,9 @@ BarVis.prototype.updateVis = function(){
       .attr("width", this.x.rangeBand())
       .style("fill", "fill")
       .transition()
-      .attr("y", function(d){ return that.y(d.monthly);})
+      .attr("y", function(d){ return that.y(d.values.snow_fall);})
       .attr("height", function(d) {
-          return that.height - that.y(d.monthly)
+          return that.height - that.y(d.values.snow_fall)
       })
 
     var yaxis = this.svg.select(".y.axis")
@@ -199,10 +201,10 @@ BarVis.prototype.updateVis = function(){
  */
 BarVis.prototype.onSelectionChange = function (fips,year){
 
-    // TODO: call wrangle function
-    //fips = fips.toString().slice(0,-3);
-    this.wrangleData(function(d){ /*data_fips = d.fips.toString().slice(0,-3);*/
-      return (fips == d.fips && year == d.year);});
+    /*this.wrangleData(function(d){
+      return (fips == d.fips && year == d.year);});*/
+    this.fips = fips;
+    this.wrangleData(fips,year);
     this.updateVis();
 }
 
@@ -222,47 +224,40 @@ BarVis.prototype.doesLabelFit = function(datum, label) {
  * @param _filter - A filter can be, e.g.,  a function that is only true for data of a given time range
  * @returns {Array|*}
  */
-BarVis.prototype.filterAndAggregate = function(_filter){
+BarVis.prototype.filterAndAggregate = function(fips,year){
 
 
     // Set filter to a function that accepts all items
-    // ONLY if the parameter _filter is NOT null use this parameter
-   var filter = function(){return true;}
-    if (_filter != null){
-        filter = _filter;
-    }
+    // ONLY if the parameter _filter
     //Dear JS hipster, a more hip variant of this construct would be:
     // var filter = _filter || function(){return true;}
 
   var that = this;
 
-  var data = this.data.filter(filter);
+  var data = this.data.filter(function(d){return d.year == year});
+  var res = [];
+  for (i = 0; i<fips.length; i++) {
+    data.map(function(d) { 
+    if (d.fips == fips[i])
+      res.push(d);
+    })
+  }
   
-  var n = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-  
-  data.map(function(d) {
+  var aggregated_data = d3.nest()
+    .key(function(d) { return d.month; })
+    .rollup(function(leaves) { return {"snow_fall": d3.sum(leaves, function(d) { 
+      return d.monthly}), "fips": that.fips}})
+    .entries(res);
+
+  /*data.map(function(d) {
     d["month_num"] = d.month;
-    d["month"] = n[d.month-1]})
+    d["month"] = n[d.month-1]})*/
 
   /*var res = d3.nest()
     .key(function(d) { return d.county; })
     .rollup(function(leaves) { return {"snow_fall": d3.sum(leaves, function(d) { 
       return d.monthly})}})
     .entries(data);*/
-  return data;
+  return aggregated_data;
   
 }
-/*
-BarVis.prototype.ExtractSnflDailyVals = function (row) {
-    var monthlySnfl = [];
-    for (var i=1; i<=31; i++){
-        var dailySnfl = +row["day" + i.toString()];
-        monthlySnfl.push( (dailySnfl >= 0) ? dailySnfl : 0 );
-    }
-    var total = monthlySnfl.reduce(function(previousValue, currentValue, index, array) {
-      return previousValue + currentValue;
-    }, 0);;
-    return total;
-}
-
-*/

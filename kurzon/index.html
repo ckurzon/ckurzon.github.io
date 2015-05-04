@@ -158,7 +158,7 @@
 
             $(MyEventHandler).bind("barClicked", function(event,d){
                 //daily_vis = new DailyVis(d3.select("#dailyVis"),daily_data, current_year, MyEventHandler);
-                daily_vis.onBarClicked(d.county,d.month_num,current_year);
+               daily_vis.onBarClicked(d.values.fips,d.key,current_year);
             });
 
         }
@@ -196,6 +196,17 @@
                 }
                 else{
                     snfl[i]["fips"] = parseInt(fipsMappingByCounty.get(stateCountyID), 10);
+                }
+            }
+
+            for (var i=0; i<snfl.length; i++){
+                var stateCountyID = daily_snfl[i].state + ", " + daily_snfl[i].county;
+                var countyFipsID = fipsMappingByCounty.get(stateCountyID);
+                if (countyFipsID == undefined){
+                    daily_snfl[i]["fips"] = '';
+                }
+                else{
+                    daily_snfl[i]["fips"] = parseInt(fipsMappingByCounty.get(stateCountyID), 10);
                 }
             }
 
