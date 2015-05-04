@@ -90,7 +90,7 @@
             <!--MONTHLY BARS-->
             <div class="row">
                 <div id="bar-container">
-                    <svg width = "300" height = "300"></svg>
+                    <svg width = "300" height = "350"></svg>
 
                 </div>
             </div>
@@ -98,7 +98,7 @@
             <div class="row">
 
                 <div id="line-container">
-                    <svg width = "300" height = "300"></svg>
+                    <svg width = "300" height = "350"></svg>
 
                 </div>
             </div>
@@ -156,7 +156,6 @@
             });
             // That's why this works (d is a single element preceding event object )
             $(MyEventHandler).bind("barClicked", function (event, d) {
-                console.log("clicked");
                 daily_vis.onBarClicked(d.values.fips, d.key, current_year);
             });
         }

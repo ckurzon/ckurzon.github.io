@@ -22,8 +22,8 @@ BarVis = function(_parentElement, _data, _currentYear, _startFips, _eventHandler
     this.fips = _startFips;
 
     // defines constants
-    this.margin = {top: 0, right: 20, bottom: 100, left: 20},
-        this.width = 300 - this.margin.left - this.margin.right,
+    this.margin = {top: 20, right: 20, bottom: 80, left: 20},
+        this.width = 350 - this.margin.left - this.margin.right,
         this.height = 300 - this.margin.top - this.margin.bottom;
     this.initVis();
 }
@@ -154,7 +154,6 @@ BarVis.prototype.updateVis = function(){
     bar.select("rect")
         .attr("x", 0)
         .attr("width", this.x.rangeBand())
-        .style("fill", "fill")
         .transition()
         .attr("y", function(d){ return that.y(d.values.snow_fall);})
         .attr("height", function(d) {
@@ -162,14 +161,12 @@ BarVis.prototype.updateVis = function(){
         })
 
     var yaxis = this.svg.select(".y.axis")
-        .style("fill","white")
         .call(this.yAxis)
    
 
 
 
     var xaxis = this.svg.select(".x.axis")
-        .style("fill","white")
         .call(this.xAxis)
         .selectAll("text")
         .style("text-anchor", "end")
@@ -187,12 +184,22 @@ BarVis.prototype.updateVis = function(){
         .text(function(d) {"Monthly Snowfall"});
 
     bar_enter.on("click", function(d,i ) {
-        /*bar.transition().remove();
-         yaxis.transition().remove();
-         xaxis.transition().remove();
-         text.transition().remove();*/
         $(that.eventHandler).trigger("barClicked",d);
     })
+
+    this.svg.selectAll(".graphtitle")
+      .remove() 
+
+    this.svg.append("text")
+        .attr("class", "graphtitle")
+        .attr("x", (this.width / 2))             
+        .attr("y", -5)
+        .attr("text-anchor", "middle")  
+        .style("font-size", "16px") 
+        .style("color", "#ffffff")
+        .style("font-weight", "bold") 
+        .text("Monthly Snowfall in ______");
+
 
     /*
      bar.selectAll("text")

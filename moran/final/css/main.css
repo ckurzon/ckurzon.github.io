@@ -22,13 +22,10 @@ html, body{
 
 }
 
-circle{
+.circle{
     display:block;
-    fill: black;
-    stroke: #999;
-}
-circle{
-    opacity: .25;
+    fill: #514c76;
+    /*opacity: 1;*/
 }
 circle:hover{
     stroke: yellow;
@@ -252,7 +249,7 @@ svg {
 .line {
     fill: none;
     stroke: #514c76;
-    stroke-width: 2.5px;
+    stroke-width: 2px;
 }
 .area {
     fill: #514c76;

@@ -10,7 +10,7 @@ DailyVis = function(_parentElement, _data, _currentYear, _eventHandler){
 
     // TODO: define all constants here
     this.margin = {top: 20, right: 20, bottom: 30, left: 30},
-        this.width =  300 - this.margin.left - this.margin.right,
+        this.width =  350 - this.margin.left - this.margin.right,
         this.height = 300 - this.margin.top - this.margin.bottom;
     this.initVis();
 }
@@ -79,7 +79,7 @@ DailyVis.prototype.initVis = function(){
         .data(that.displayData)
         .enter().append("circle")
         .attr("class", "circle")
-        .attr("r", 2)
+        .attr("r", 3)
         .attr("cx", function(d) { return that.x(d.day); })
 
     this.updateVis();
@@ -126,42 +126,19 @@ DailyVis.prototype.updateVis = function(){
         .transition()
         .duration(750)
         .attr("cy", function(d){return that.y(d.snowfall)});
-    /*
-     this.svg.selectAll(".circle")
-     .remove()
+    
+    this.svg.selectAll(".graphtitle")
+      .remove() 
 
-     this.svg.selectAll(".line")
-     .remove()
-
-     this.svg.append("path")
-     .attr("class", "line")
-     .attr("fill", "none")
-     .attr("stroke", "black")
-     .transition()
-     .attr("d", that.line(that.displayData));*/
-    /*
-     this.svg.selectAll(".circle")
-     .data(that.displayData)
-     .enter().append("circle")
-     .attr("class", "circle")
-     .attr("fill", that.displayData[0]["color"])
-     .attr("r", 3.5)
-     .transition()
-     .attr("cx", function(d) { return that.x(d.day); })
-     .attr("cy", function(d) { return that.y(d.snowfall); });
-     */
-    /*
-     this.svg.selectAll(".graphtitle")
-     .remove()
-
-     this.svg.append("text")
-     .attr("class", "graphtitle")
-     .attr("x", (this.width / 2))
-     .attr("y", 0)
-     .attr("text-anchor", "middle")
-     .style("font-size", "16px")
-     .text(that.displayData[0]["county"]);*/
-
+    this.svg.append("text")
+        .attr("class", "graphtitle")
+        .attr("x", (this.width / 2))             
+        .attr("y", -5)
+        .attr("text-anchor", "middle")  
+        .style("font-size", "16px") 
+        .style("color", "#ffffff")
+        .style("font-weight", "bold") 
+        .text("Daily Snowfall in ______");
 
 }
 

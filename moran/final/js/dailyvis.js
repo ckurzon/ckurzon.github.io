@@ -9,7 +9,7 @@ DailyVis = function(_parentElement, _data, _currentYear, _eventHandler){
 
     // TODO: define all constants here
     this.margin = {top: 20, right: 20, bottom: 30, left: 30},
-        this.width =  300 - this.margin.left - this.margin.right,
+        this.width =  350 - this.margin.left - this.margin.right,
         this.height = 300 - this.margin.top - this.margin.bottom;
     this.initVis();
 }
@@ -78,7 +78,7 @@ DailyVis.prototype.initVis = function(){
         .data(that.displayData)
         .enter().append("circle")
         .attr("class", "circle")
-        .attr("r", 3)
+        .attr("r", 4)
         .attr("cx", function(d) { return that.x(d.day); })
 
     this.updateVis();
