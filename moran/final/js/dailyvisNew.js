@@ -1,10 +1,13 @@
 
-DailyVis = function(_parentElement, _data, _currentYear, _eventHandler){
+DailyVis = function(_parentElement, _dailyfall,_dailydepth, _currentYear, _eventHandler){
     this.parentElement = _parentElement;
-    this.data = _data;
+    this.fall = _dailyfall;
+    this.depth = _dailydepth
     this.organizeData();
+    this.data = this.fall;
     this.eventHandler = _eventHandler;
     this.displayData = [];
+    this.fips = [23003, 23021,2185];
     this.year = _currentYear;
     this.month = "12";
 
@@ -72,7 +75,7 @@ DailyVis.prototype.initVis = function(){
         .attr("stroke", "black")
 
     // filter, aggregate, modify data
-    this.wrangleData([23003, 23021,2185]);
+    this.wrangleData(that.fips);
     // call the update method
 
     this.x.domain([1,31]);
@@ -160,10 +163,30 @@ DailyVis.prototype.onBarClicked = function (fips,month,year){
 
     this.year = year; 
     this.month = month;
-    this.wrangleData(fips);
+    this.fips = fips;
+    this.wrangleData(this.fips);
     this.updateVis();
 }
 
+DailyVis.prototype.onSelectionChange = function (fips,year){
+    var that = this;
+
+    this.year = year; 
+    this.fips = fips;
+    this.wrangleData(this.fips);
+    this.updateVis();
+}
+
+DailyVis.prototype.toggle= function(){
+// toggles dataset between depth and fall
+    val = $('input[name="scale"]:checked').val();
+    if (val == "depth")
+        this.data = this.depth;
+    else
+        this.data = this.fall;
+    this.wrangleData(this.fips);
+    this.updateVis();
+}
 
 
 /*
@@ -176,10 +199,15 @@ DailyVis.prototype.onBarClicked = function (fips,month,year){
 
 /**Organizes data by year for easy filtering**/
 DailyVis.prototype.organizeData = function(){
-    this.data = d3.nest()
+    this.fall = d3.nest()
         .key(function(d) { return d.year; })
         .key(function(d) {return d.month;})
-        .entries(this.data);
+        .entries(this.fall);
+
+    this.depth = d3.nest()
+        .key(function(d) { return d.year; })
+        .key(function(d) {return d.month;})
+        .entries(this.depth);
 }
 
 /**

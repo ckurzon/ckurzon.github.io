@@ -98,10 +98,10 @@
             <div class="row">
             <div class="toggle">
                 <label>Snowfall
-                    <input type="radio" class="scale" name="scale" value="fall" checked="checked" onclick="update_prio()">
+                    <input type="radio" class="scale" name="scale" value="fall" checked="checked" onclick="toggle()">
                 </label>
                 <label>Snow Depth
-                    <input type="radio" class="scale" name="scale" value="depth" id = "depth" onclick="update_prio()">
+                    <input type="radio" class="scale" name="scale" value="depth" id = "depth" onclick="toggle()">
                 </label>
                 </div>
                 <div id="line-container">
@@ -124,11 +124,14 @@
 
 <!-- MAIN APP -->
 <script>
+    var daily_vis;
+
     $(function() {
 
         var us_data = [];           // Draw Map boundaries/paths
         var snow_data = {};         // Monthly snowfall
-        var daily_data = {};        // daily snow fall
+        var daily_fall = {};        // daily snow fall
+        var daily_depth = {};       // daily snow depth
 
         var fipsToCountyMap = d3.map();
         var countyToFipsMap = d3.map();
@@ -140,7 +143,7 @@
         //Visualizations
         var map_vis;
         var bar_vis;
-        var daily_vis;
+    
 
         DEBUG = true;           // Global debug variable
 
@@ -152,7 +155,7 @@
             // Viz containers
             map_vis = new MapVis(d3.select("#map-container"), fipsToCountyMap, us_data, snow_data, current_year, startFips, MyEventHandler);
             bar_vis = new BarVis(d3.select("#bar-container"), snow_data, current_year, startFips, MyEventHandler);
-            daily_vis = new DailyVis(d3.select("#line-container"), daily_data, current_year, MyEventHandler);
+            daily_vis = new DailyVis(d3.select("#line-container"), daily_fall, daily_depth, current_year, MyEventHandler);
 
             // Trigger Bindings
             $(MyEventHandler).bind("selectionChanged", function (event, fipObj) {
@@ -160,12 +163,14 @@
                 //Need to pass it in as a single element to keep track of all fips
                 //Originally registered it as a list of parameters (not values)...
                 bar_vis.onSelectionChange(fipObj.values, current_year);
+                daily_vis.onSelectionChange(fipsObj.values,current_year);
             });
             // That's why this works (d is a single element preceding event object )
             $(MyEventHandler).bind("barClicked", function (event, d) {
                 daily_vis.onBarClicked(d.values.fips, d.key, current_year);
             });
         }
+
 
         if (DEBUG) console.log("loading files");
 
@@ -174,9 +179,10 @@
                 .defer(d3.json, "json/FipsCountyCodes.json")
                 .defer(d3.csv, "data/snflMonthly.csv")
                 .defer(d3.tsv, "data/snfl_clean.tsv")
+                .defer(d3.tsv,"data/sndpth.tsv")
                 .await(ready);
 
-        function ready(error, us, fips, snfl, daily_snfl) {
+        function ready(error, us, fips, snfl, daily_snfl,daily_sndpth) {
 
             if (DEBUG) console.log("Error: ", error);
 
@@ -186,11 +192,12 @@
             }
 
             //FIPS
-            ProcessData(us, fips, snfl, daily_snfl);
+            ProcessData(us, fips, snfl, daily_snfl,daily_sndpth);
 
             us_data = us;
             snow_data = snfl;
-            daily_data = (daily_snfl);
+            daily_fall = (daily_snfl);
+            daily_depth = (daily_sndpth);
 
             initVis();
         }
@@ -211,7 +218,7 @@
         //HELPERS
         /////////////////////////////////////////////////////////////////////////////////
 
-        function ProcessData(us, fips, snfl, daily_snfl) {
+        function ProcessData(us, fips, snfl, daily_snfl, daily_sndpth) {
             for (var i = 0; i < fips["table"]["rows"].length; i++) {
                 countyToFipsMap.set(fips["table"]["rows"][i][1].toUpperCase(), parseInt(fips["table"]["rows"][i][0], 10));
                 fipsToCountyMap.set(parseInt(fips["table"]["rows"][i][0], 10), fips["table"]["rows"][i][1].toUpperCase());
@@ -229,8 +236,19 @@
                 var countyFipsID = countyToFipsMap.get(stateCountyID);
                 daily_snfl[i]["fips"] = (countyFipsID == undefined) ? '' : parseInt(countyToFipsMap.get(stateCountyID), 10);
             }
+
+
+            for (var i = 0; i < daily_sndpth.length; i++) {
+                var stateCountyID = daily_sndpth[i].state + ", " + daily_sndpth[i].county;
+                var countyFipsID = countyToFipsMap.get(stateCountyID);
+                daily_sndpth[i]["fips"] = (countyFipsID == undefined) ? '' : parseInt(countyToFipsMap.get(stateCountyID), 10);
+            }
         }
     });
+
+    function toggle(){
+        daily_vis.toggle();
+    }
 
 </script>
 
