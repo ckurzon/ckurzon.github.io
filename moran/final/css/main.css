@@ -7,6 +7,10 @@ html, body{
     min-width: 960px;
 }
 
+#splash-title{
+    font-size: 30px;
+    color: #1a1a1a;
+}
 .land {
     fill: #f7f7f7;
     stroke: #ccc;

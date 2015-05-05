@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/d3.slider.css">
     <link rel="stylesheet" href="css/snow.css">
+    <link rel="stylesheet" href="css/spinner.css">
+    <link rel="stylesheet" href="css/please-wait.css">
     <link rel="stylesheet" href="libs/bootstrap/css/bootstrap.min.css">
 
     <!--Title-->
@@ -30,6 +32,7 @@
 <!--Javascript files-->
 <!--<script src="js/barvis.js"></script>-->
 <!--<script src="js/dailyvis.js"></script>-->
+<script type="text/javascript" src="js/please-wait.js"></script>
 <script src="js/barvisNew.js"></script>
 <script src="js/dailyvisNew.js"></script>
 <script src="js/mapvis.js"></script>
@@ -122,11 +125,18 @@
     </div>
 </div>
 
-<div id="snow-background">
+<div class="snow-background">
 </div>
 
 <!-- MAIN APP -->
 <script>
+
+    var loading_screen = window.pleaseWait({
+        logo: "images/s1.png",
+        loadingHtml: "<div class = 'snow-background'></div> <p class ='splash-title'> The More You Snow </p><br/><p class = 'splash-subtitle'>CS171 Final Project by<br/>Andrew Moran, Chloe Kurzon, and Jay Chakravarty </p><div class='sk-spinner sk-spinner-wave'><div class='sk-rect1'></div><div class='sk-rect2'></div><div class='sk-rect3'></div><div class='sk-rect4'></div><div class='sk-rect5'></div></div>"
+    });
+
+
     var daily_vis;
 
     $(function() {
@@ -183,6 +193,9 @@
             $(MyEventHandler).bind("barClicked", function (event, d) {
                 daily_vis.onBarClicked(d.values.fips, d.key, current_year);
             });
+
+            loading_screen.finish();
+            
         }
 
 
@@ -267,6 +280,7 @@
 </script>
 
 </body>
+
 
 <!--TODO: Loading Screen-->
 <!--&lt;!&ndash;<div class="se-pre-con"></div>&ndash;&gt;-->
