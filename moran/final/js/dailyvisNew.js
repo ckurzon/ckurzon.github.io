@@ -97,8 +97,8 @@ DailyVis.prototype.initVis = function(){
             that.probe
                 .style( {
                     "display" : "block",
-                    "top" : d3.event.pageY + that.hoverYOffset + "px",
-                    "left" : d3.event.pageX + that.hoverXOffset + "px"
+                    "top" : (that.y(d.snowfall)) + 290 + "px",
+                    "left": (that.x(d.day)) + 5 + "px"
                 });
         })
         .on("mouseout",function(){
@@ -245,7 +245,7 @@ DailyVis.prototype.organizeData = function(){
 
 DailyVis.prototype.setProbeContent = function(d){
 
-    var html =  "Day: " + d.day + "<br/>" + d.snowfall + " in";
+    var html =  "<strong>" "Day: " + d.day + "</strong>" + "<br/>" + d.snowfall + "\"";
     this.probe
         .html( html );
 }

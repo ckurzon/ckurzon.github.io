@@ -26,9 +26,6 @@ BarVis = function(_parentElement, _data, _currentYear, _startFips, _eventHandler
         this.width = 350 - this.margin.left - this.margin.right,
         this.height = 300 - this.margin.top - this.margin.bottom;
 
-    this.hoverYOffset = -5;
-    this.hoverXOffset = -5;
-
     this.initVis();
 }
 
@@ -179,13 +176,12 @@ BarVis.prototype.updateVis = function(){
             $(that.eventHandler).trigger("barClicked",d);
         })
         .on("mousemove",function(d){
-            //that.hoverData = d;
             that.setProbeContent(d);
             that.probe
                 .style( {
                     "display" : "block",
-                    "top" : d3.event.pageY + that.hoverYOffset + "px",
-                    "left" : d3.event.pageX + that.hoverXOffset + "px"
+                    "top" : (that.y(d.values.snow_fall)) - 38 + "px",
+                    "left": (that.x.rangeBand()*parseInt(d.key)) + "px"
                 });
         })
         .on("mouseout",function(){
@@ -204,7 +200,7 @@ BarVis.prototype.updateVis = function(){
         .style("font-size", "16px") 
         .style("fill", "#999")
         .style("font-weight", "bold") 
-        .text("Monthly Snowfall in " + this.currentYear);
+        .text("Monthly Snowfall in" + this.currentYear);
 
 
 }
@@ -222,7 +218,7 @@ BarVis.prototype.onSelectionChange = function (fips,year){
      return (fips == d.fips && year == d.year);});*/
     if (fips.length > 0) {
         this.fips = fips;
-        this.year = year;
+        this.currentYear = year;
         this.wrangleData(fips,year);
         this.updateVis();
     }
@@ -272,7 +268,7 @@ BarVis.prototype.filterAndAggregate = function(fips,year){
 BarVis.prototype.setProbeContent = function(d){
 
     var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    var html =  months[(parseInt(d.key))-1] + "<br/>" + d.values.snow_fall + " in";
+    var html =  "<strong>" + months[(parseInt(d.key))-1] + "</strong>" + "<br/>" + d.values.snow_fall + "\"";
     this.probe
         .html( html );
 }

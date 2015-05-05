@@ -120,7 +120,6 @@ html, body{
 }
 
 
-
 .probe{
     position: absolute;
     background-color: white;
@@ -290,7 +289,7 @@ if it's not present, don't show loader */
 
 #counties .qNone-9 {fill:grey;}
 #counties .q0f51c4 { fill:#0f51c4; }
-#counties .q073a92{ fill:#073a92; }
+#counties .q073a92 { fill:#073a92; }
 #counties .q4681e6 { fill:#4681e6; }
 #counties .q6c9bec { fill:#6c9bec; }
 #counties .q2769d9 { fill:#2769d9; }
@@ -303,17 +302,6 @@ if it's not present, don't show loader */
 #counties :hover {fill: yellow;}
 
 #counties .active { fill: red; }
-
-/*#counties .q0-9.active { fill:red; }*/
-/*#counties .q1-9.active { fill:red; }*/
-/*#counties .q2-9.active { fill:red; }*/
-/*#counties .q3-9.active { fill:red; }*/
-/*#counties .q4-9.active { fill:red; }*/
-/*#counties .q5-9.active { fill:red; }*/
-/*#counties .q6-9.active { fill:red; }*/
-/*#counties .q7-9.active { fill:red; }*/
-/*#counties .q8-9.active { fill:red; }*/
-
 
 #proximity-circle .proximity-hidden{
     opacity: 0.0;
