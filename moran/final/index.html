@@ -163,7 +163,7 @@
                 //Need to pass it in as a single element to keep track of all fips
                 //Originally registered it as a list of parameters (not values)...
                 bar_vis.onSelectionChange(fipObj.values, current_year);
-                daily_vis.onSelectionChange(fipsObj.values,current_year);
+                daily_vis.onSelectionChange(fipObj.values,current_year);
             });
             // That's why this works (d is a single element preceding event object )
             $(MyEventHandler).bind("barClicked", function (event, d) {
