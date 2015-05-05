@@ -29,7 +29,7 @@ MapVis = function(_parentElement, _fipsToCountyMap, _usData, _snflData, _current
     this.proximityRadius;
 
     //Map scale
-    this.mapScale = 1100;
+    this.mapScale = 1200;
 
     //Map hover-over
     this.hoverYOffset = -290;
@@ -88,10 +88,9 @@ MapVis = function(_parentElement, _fipsToCountyMap, _usData, _snflData, _current
         ])
         .clamp(true);
 
-    //this.colorpow = chroma.scale(['c5c8ea', 'aaaddd', '828dc1', '545d89','3d4365']).domain([1, 100], 8, 'log');   
-    this.colorpow = chroma.scale(['bcbaf2', '9998c5', '767592', '514c76','20194b']).domain([1, 100], 8, 'log');
-    //this.colorpow = chroma.scale(['a4abd6', '69709e', '3a4071', '1f264f','0a0e28']).domain([1, 100], 8, 'log');  
-    //this.colorpow = chroma.scale(['eaf1fe', '76a2ee', '3475e4','094cbf','052356']).domain([1, 100], 8, 'log');   
+   
+    //this.colorpow = chroma.scale(['bcbaf2', '9998c5', '767592', '514c76','20194b']).domain([1, 100], 10, 'log');
+    this.colorpow = chroma.scale(['eaf1fe', '76a2ee', '3475e4','094cbf','052356']).domain([1, 100], 8, 'log');   
  
 
     //Global Map Reference
