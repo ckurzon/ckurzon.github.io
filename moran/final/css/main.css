@@ -27,9 +27,9 @@ html, body{
     fill: #094cbf;
     /*opacity: 1;*/
 }
-circle:hover{
+.circle :hover{
+    fill: yellow;
     stroke: yellow;
-    stroke-width: 2;
 }
 
 #map-container{
@@ -121,7 +121,7 @@ circle:hover{
 
 
 
-#probe{
+.probe{
     position: absolute;
     background-color: white;
     border: 1px solid #ccc;
@@ -133,6 +133,7 @@ circle:hover{
     -moz-box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.25);
     box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.25);
 }
+
 
 #probe strong{
     font-size: 16px;
@@ -204,9 +205,7 @@ h2{
     stroke: #fff;
     stroke-linejoin: round;
 }
-.bar:hover {
-    fill: red ;
-}
+
 path {
     fill: #ccc;
     /*stroke: #fff;*/
@@ -252,7 +251,9 @@ svg {
 .bar rect {
     fill: #094cbf;
 }
-
+.bar :hover {
+    fill: yellow ;
+}
 .line {
     fill: none;
     stroke: #094cbf;

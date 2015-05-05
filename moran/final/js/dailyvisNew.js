@@ -15,7 +15,13 @@ DailyVis = function(_parentElement, _dailyfall,_dailydepth, _currentYear, _event
     this.margin = {top: 20, right: 20, bottom: 30, left: 35},
         this.width =  350 - this.margin.left - this.margin.right,
         this.height = 300 - this.margin.top - this.margin.bottom;
+
+
+    this.hoverYOffset = -290;
+    this.hoverXOffset = -100;
+
     this.initVis();
+
 }
 
 
@@ -86,6 +92,23 @@ DailyVis.prototype.initVis = function(){
         .attr("class", "circle")
         .attr("r", 3)
         .attr("cx", function(d) { return that.x(d.day); })
+        .on("mousemove",function(d){
+            that.setProbeContent(d);
+            that.probe
+                .style( {
+                    "display" : "block",
+                    "top" : d3.event.pageY + that.hoverYOffset + "px",
+                    "left" : d3.event.pageX + that.hoverXOffset + "px"
+                });
+        })
+        .on("mouseout",function(){
+            that.probe.style("display","none");
+        })
+
+    this.probe = this.parentElement.append("div")
+        .attr("id","probe_circle")
+        .attr("class", "probe");
+   
 
     this.updateVis();
 }
@@ -219,6 +242,14 @@ DailyVis.prototype.organizeData = function(){
  * @param _filter - A filter can be, e.g.,  a function that is only true for data of a given time range
  * @returns {Array|*}
  */
+
+DailyVis.prototype.setProbeContent = function(d){
+
+    var html =  "Day: " + d.day + "<br/>" + d.snowfall + " in";
+    this.probe
+        .html( html );
+}
+
 DailyVis.prototype.filterAndAggregate = function(fips){
 
 
@@ -248,19 +279,23 @@ DailyVis.prototype.filterAndAggregate = function(fips){
 
     for (var i = 0; i <= 30; i++){
         for (var j = 0; j < snfls.length; j++) {
-            if (snfls[j][i])
+            if (!isNaN(snfls[j][i]))
                 new_data[i] += ((snfls[j][i] > 0) ? snfls[j][i] : 0);
-            else 
-                new_data[i] +=0;
         }
         new_data[i] = new_data[i]/snfls.length;
     }
 
+    if (isNaN(new_data[0])) {
+        new_data = d3.range(31).map(function () {
+        return 0;
+        });
+    }
     var res = [];
     new_data.map(function (d,i) {
         obj = {"snowfall": (Math.round( d * 10 ) / 10), "day": i+1};
         res.push(obj);
     })
+    
     return res;
 
 }

@@ -165,9 +165,10 @@
                 //arrays are by default expected to be extra parameters for an event trigger
                 //Need to pass it in as a single element to keep track of all fips
                 //Originally registered it as a list of parameters (not values)...
-               // bar_vis.onSelectionChange(fipObj.values, current_year);
+                bar_vis.onSelectionChange(fipObj.values, current_year);
                 daily_vis.onSelectionChange(fipObj.values,current_year);
 
+                //update the display with the name of the county selected
                 var sourceCountyName = undefined;
                 if (fipObj.values[0]){
                     sourceCountyName = fipsToCountyMap.get(fipObj.values[0]);

@@ -25,6 +25,10 @@ BarVis = function(_parentElement, _data, _currentYear, _startFips, _eventHandler
     this.margin = {top: 20, right:0, bottom: 80, left: 40},
         this.width = 350 - this.margin.left - this.margin.right,
         this.height = 300 - this.margin.top - this.margin.bottom;
+
+    this.hoverYOffset = -290;
+    this.hoverXOffset = -100;
+
     this.initVis();
 }
 
@@ -75,6 +79,9 @@ BarVis.prototype.initVis = function(){
         .attr("dy", ".71em")
         .style("text-anchor", "end")
 
+    this.probe = this.parentElement.append("div")
+        .attr("id","probe_bar")
+        .attr("class", "probe")
    
     // filter, aggregate, modify data
     this.wrangleData(that.fips,that.currentYear);
@@ -167,10 +174,24 @@ BarVis.prototype.updateVis = function(){
             return "rotate(-65)"
         });
 
-
-    bar_enter.on("click", function(d,i ) {
-        $(that.eventHandler).trigger("barClicked",d);
-    })
+    bar_enter
+        .on("click", function(d,i ) {
+            $(that.eventHandler).trigger("barClicked",d);
+        })
+        .on("mousemove",function(d){
+            //that.hoverData = d;
+            that.setProbeContent(d);
+            that.probe
+                .style( {
+                    "display" : "block",
+                    "top" : d3.event.pageY + that.hoverYOffset + "px",
+                    "left" : d3.event.pageX + that.hoverXOffset + "px"
+                });
+        })
+        .on("mouseout",function(){
+            //that.hoverData = null;
+            that.probe.style("display","none");
+        })
 
     this.svg.selectAll(".graphtitle")
       .remove() 
@@ -185,17 +206,6 @@ BarVis.prototype.updateVis = function(){
         .style("font-weight", "bold") 
         .text("Monthly Snowfall in " + this.currentYear);
 
-
-    /*
-     bar.selectAll("text")
-     .transition()
-     .attr("x", function(d) { return that.y(d.values.snow_fall) + (that.doesLabelFit(d) ? -3 : 5); })
-     .attr("y", function(d,i) { return that.y.rangeBand() / 2; })
-     .text(function(d) { return d.key; })
-     .attr("class", "type-label")
-     .attr("dy", ".35em")
-     .attr("text-anchor", function(d) { return that.doesLabelFit(d) ? "end" : "start"; })
-     .attr("fill", function(d) { return that.doesLabelFit(d) ? "white" : "black"; });*/
 
 }
 
@@ -212,21 +222,12 @@ BarVis.prototype.onSelectionChange = function (fips,year){
      return (fips == d.fips && year == d.year);});*/
     if (fips.length > 0) {
         this.fips = fips;
+        this.year = year;
         this.wrangleData(fips,year);
         this.updateVis();
     }
 }
 
-
-/**
- * Helper function that figures if there is sufficient space
- * to fit a label inside its bar in a bar chart
- */
-BarVis.prototype.doesLabelFit = function(datum, label) {
-    var pixel_per_character = 6;  // obviously a (rough) approximation
-
-    return datum.key.length * pixel_per_character < this.x(datum.values.snow_fall);
-}
 
 /**
  * The aggregate function that creates the counts for each age for a given filter.
@@ -235,11 +236,6 @@ BarVis.prototype.doesLabelFit = function(datum, label) {
  */
 BarVis.prototype.filterAndAggregate = function(fips,year){
 
-
-    // Set filter to a function that accepts all items
-    // ONLY if the parameter _filter
-    //Dear JS hipster, a more hip variant of this construct would be:
-    // var filter = _filter || function(){return true;}
 
     var that = this;
 
@@ -253,22 +249,30 @@ BarVis.prototype.filterAndAggregate = function(fips,year){
         })
     }
 
-    var aggregated_data = d3.nest()
-        .key(function(d) { return d.month; })
-        .rollup(function(leaves) { return {"snow_fall": d3.sum(leaves, function(d) {
-            return d.monthly}), "fips": that.fips}})
-        .entries(res);
-
-    /*data.map(function(d) {
-     d["month_num"] = d.month;
-     d["month"] = n[d.month-1]})*/
-
-    /*var res = d3.nest()
-     .key(function(d) { return d.county; })
-     .rollup(function(leaves) { return {"snow_fall": d3.sum(leaves, function(d) {
-     return d.monthly})}})
-     .entries(data);*/
+    var aggregated_data = [];
+    if (res.length < 1)
+    {
+        for (var i = 1; i < 13; i ++) {
+        aggregated_data.push({ key: i.toString() , values: {"snow_fall" : 0, "fips": that.fips}})
+        }
+    }
+    else{
+    
+        aggregated_data = d3.nest()
+            .key(function(d) { return d.month; })
+            .rollup(function(leaves) { return {"snow_fall": d3.sum(leaves, function(d) {
+                return d.monthly}), "fips": that.fips}})
+            .entries(res);
+    }
 
     return aggregated_data;
 
+}
+
+BarVis.prototype.setProbeContent = function(d){
+
+    var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    var html =  months[(parseInt(d.key))-1] + "<br/>" + d.values.snow_fall + " in";
+    this.probe
+        .html( html );
 }

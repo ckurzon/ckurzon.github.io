@@ -267,7 +267,9 @@ MapVis.prototype.initVis = function(){
         .call(that.zoom);
 
     this.probe = this.parentElement.append("div")
-        .attr("id","probe");
+        .attr("id","probe")
+        .attr("class","probe");
+        
     this.hoverData;
 
     //MAP CONSTANTS
