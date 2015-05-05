@@ -113,13 +113,7 @@ circle:hover{
     border-left: 1px solid #999;
 }
 
-#axis .tick line{
-    stroke: #999;
-}
 
-#axis .tick text{
-    font-size: 12px;
-}
 
 #probe{
     position: absolute;
@@ -213,6 +207,21 @@ path {
     stroke: black;
     stroke-width: .5px;
 }
+
+.axis path {
+    fill: none;
+    stroke-width: 1px;
+    stroke: #666;
+}
+.axis .tick line{
+    stroke: #666;
+}
+
+.axis .tick text{
+    font-size: 12px;
+    stroke: #666;
+    stroke-fill: #666;
+}
 /*path:hover {*/
     /*fill: red;*/
 /*}*/
@@ -240,12 +249,7 @@ svg {
 .bar rect {
     fill: #514c76;
 }
-.axis line {
-    fill: #666;
-    stroke: #000;
-    stroke-width: 0.5px;
-    shape-rendering: crispEdges;
-}
+
 .line {
     fill: none;
     stroke: #514c76;
@@ -311,6 +315,7 @@ if it's not present, don't show loader */
 #proximity-circle .proximity-hidden{
     opacity: 0.0;
 }
+
 
 
 

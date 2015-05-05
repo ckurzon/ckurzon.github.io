@@ -40,11 +40,13 @@ DailyVis.prototype.initVis = function(){
 
     this.xAxis = d3.svg.axis()
         .scale(this.x)
-        .orient("bottom");
+        .orient("bottom")
+        .tickFormat(function(d) { return (d*1); });
 
     this.yAxis = d3.svg.axis()
         .scale(this.y)
-        .orient("left");
+        .orient("left")
+        .tickFormat(function(d) { return d + "\""; });
 
     this.line = d3.svg.line()
         .x(function(d) { return that.x(d.day); })
@@ -107,11 +109,15 @@ DailyVis.prototype.updateVis = function(){
 
     var that = this;
 
-    this.y.domain(d3.extent(this.displayData, function(d) { return d.snowfall; }));
+    //this.y.domain(d3.extent(this.displayData, function(d) { return d.snowfall; }));
+    var range = d3.extent(this.displayData, function(d) { return d.snowfall; });
+    range[1] = (parseFloat(range[1]) + 3.0).toString();
+    this.y.domain(range);
+    //this.y.domain([0,30]);
 
     // updates axis
     this.svg.select(".x.axis")
-        .call(this.xAxis);
+        .call(this.xAxis)
 
     this.svg.select(".y.axis")
         .call(this.yAxis)

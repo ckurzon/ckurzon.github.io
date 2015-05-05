@@ -96,7 +96,14 @@
             </div>
             <!--DAILY LINES-->
             <div class="row">
-
+            <div class="toggle">
+                <label>Snowfall
+                    <input type="radio" class="scale" name="scale" value="fall" checked="checked" onclick="update_prio()">
+                </label>
+                <label>Snow Depth
+                    <input type="radio" class="scale" name="scale" value="depth" id = "depth" onclick="update_prio()">
+                </label>
+                </div>
                 <div id="line-container">
                     <svg width = "300" height = "350"></svg>
 

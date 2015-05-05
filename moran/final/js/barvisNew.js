@@ -53,13 +53,14 @@ BarVis.prototype.initVis = function(){
 
     this.xAxis = d3.svg.axis()
         .scale(this.x)
-        .ticks(8)
+        .ticks(12)
         .orient("bottom");
 
 
     this.yAxis = d3.svg.axis()
         .scale(this.y)
-        .orient("left");
+        .orient("left")
+        .tickFormat(function(d) { return d + "\""; });
 
     // Add axes visual elements
     this.svg.append("g")
@@ -119,8 +120,10 @@ BarVis.prototype.updateVis = function(){
     // updates axis
 
     this.x.domain(months);
+
     var range = d3.extent(this.displayData, function(d) { return d.values.snow_fall; });
-    range[1] = (parseFloat(range[1]) + 10.0).toString();
+    console.log(range);
+    range[1] = (parseFloat(range[1]) + 3.0).toString();
     this.y.domain(range);
     // updates graph
 
@@ -162,7 +165,7 @@ BarVis.prototype.updateVis = function(){
 
     var yaxis = this.svg.select(".y.axis")
         .call(this.yAxis)
-   
+
 
 
 
@@ -176,12 +179,6 @@ BarVis.prototype.updateVis = function(){
             return "rotate(-65)"
         });
 
-    var text = this.svg.append("text")
-        .attr("x", (this.width / 2))
-        .attr("y", -5)
-        .attr("text-anchor", "middle")
-        .style("font-size", "16px")
-        .text(function(d) {"Monthly Snowfall"});
 
     bar_enter.on("click", function(d,i ) {
         $(that.eventHandler).trigger("barClicked",d);
