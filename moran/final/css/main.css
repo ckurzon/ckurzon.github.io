@@ -14,7 +14,7 @@ html, body{
 
 .state-boundary {
     fill: none;
-    stroke: indigo;
+    stroke: green;
     stroke-width: 1.5px;
     stroke-linejoin: round;
     stroke-linecap: round;
@@ -117,7 +117,6 @@ html, body{
     margin-left: 100px;
     color: white;
 }
-
 
 
 .probe{
@@ -298,21 +297,8 @@ if it's not present, don't show loader */
 #counties .qeaf1fe { fill:#eaf1fe; }
 #counties .qNone-9 {fill:grey;}
 
-/*#counties :hover {fill:grey;}*/
-
 #counties :hover {fill: yellow;}
-
 #counties .active { fill: red; }
-
-/*#counties .q0-9.active { fill:red; }*/
-/*#counties .q1-9.active { fill:red; }*/
-/*#counties .q2-9.active { fill:red; }*/
-/*#counties .q3-9.active { fill:red; }*/
-/*#counties .q4-9.active { fill:red; }*/
-/*#counties .q5-9.active { fill:red; }*/
-/*#counties .q6-9.active { fill:red; }*/
-/*#counties .q7-9.active { fill:red; }*/
-/*#counties .q8-9.active { fill:red; }*/
 
 
 #proximity-circle{
@@ -322,6 +308,10 @@ if it's not present, don't show loader */
 #proximity-circle .proximity-hidden{
     opacity: 0.0;
 }
+
+/*#proximity-circle :hover{*/
+    /*stroke: yellow;*/
+/*}*/
 
 #toggle{
     font-size: 16px;

@@ -186,7 +186,6 @@ MapVis.prototype.initVis = function(){
         .attr("vector-effect","non-scaling-stroke")
         .attr("d", that.path)
         .on("mousemove",function(d){
-            //that.hoverData = d;
             that.setProbeContent(d);
             that.probe
                 .style( {
@@ -196,7 +195,6 @@ MapVis.prototype.initVis = function(){
                 });
         })
         .on("mouseout",function(){
-            //that.hoverData = null;
             that.probe.style("display","none");
         })
         .call(that.dragOnCounty);
@@ -224,7 +222,6 @@ MapVis.prototype.initVis = function(){
         .attr("cy", function(d) {return d.y;})
         .classed("proximity-hidden", true)
         .on("mousemove",function(d){
-            //that.hoverData = d;
             that.setProximityProbeContent();
             that.probe
                 .style( {
@@ -234,7 +231,6 @@ MapVis.prototype.initVis = function(){
                 });
         })
         .on("mouseout",function(){
-            //that.hoverData = null;
             that.probe.style("display","none");
         })
         .call(that.dragProximityCircle)
