@@ -22,7 +22,7 @@ BarVis = function(_parentElement, _data, _currentYear, _startFips, _eventHandler
     this.fips = _startFips;
 
     // defines constants
-    this.margin = {top: 20, right: 20, bottom: 80, left: 20},
+    this.margin = {top: 20, right:0, bottom: 80, left: 35},
         this.width = 350 - this.margin.left - this.margin.right,
         this.height = 300 - this.margin.top - this.margin.bottom;
     this.initVis();
@@ -122,7 +122,6 @@ BarVis.prototype.updateVis = function(){
     this.x.domain(months);
 
     var range = d3.extent(this.displayData, function(d) { return d.values.snow_fall; });
-    console.log(range);
     range[1] = (parseFloat(range[1]) + 3.0).toString();
     this.y.domain(range);
     // updates graph
