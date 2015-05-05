@@ -200,10 +200,7 @@ BarVis.prototype.updateVis = function(){
         .attr("class", "graphtitle")
         .attr("x", (this.width / 2))             
         .attr("y", -5)
-        .attr("text-anchor", "middle")  
-        .style("font-size", "16px") 
-        .style("fill", "#999")
-        .style("font-weight", "bold") 
+        .attr("text-anchor", "middle")
         .text("Monthly Snowfall in " + this.currentYear);
 
 

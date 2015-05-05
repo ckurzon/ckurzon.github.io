@@ -196,7 +196,7 @@
                 .defer(d3.tsv,"data/sndpth.tsv")
                 .await(ready);
 
-        function ready(error, us, fips, snfl, daily_snfl,daily_sndpth) {
+        function ready(error, us, fips, snfl,daily_snfl,daily_sndpth) {
 
             if (DEBUG) console.log("Error: ", error);
 

@@ -25,7 +25,6 @@ html, body{
 .circle{
     display:block;
     fill: #094cbf;
-    /*opacity: 1;*/
 }
 .circle :hover{
     fill: yellow;
@@ -288,15 +287,16 @@ if it's not present, don't show loader */
     /*fill: blue;*/
 /*}*/
 
-#counties .qNone-9 {fill:grey;}
-#counties .q0f51c4 { fill:#0f51c4; }
+#counties .q04183C { fill:#04183C; }
+#counties .q052356 { fill:#052356; }
 #counties .q073a92{ fill:#073a92; }
+#counties .q0f51c4 { fill:#0f51c4; }
+#counties .q2769d9 { fill:#2769d9; }
 #counties .q4681e6 { fill:#4681e6; }
 #counties .q6c9bec { fill:#6c9bec; }
-#counties .q2769d9 { fill:#2769d9; }
-#counties .qeaf1fe { fill:#eaf1fe; }
-#counties .q052356 { fill:#052356; }
 #counties .qa7c3f4 { fill:#a7c3f4; }
+#counties .qeaf1fe { fill:#eaf1fe; }
+#counties .qNone-9 {fill:grey;}
 
 /*#counties :hover {fill:grey;}*/
 
@@ -315,6 +315,10 @@ if it's not present, don't show loader */
 /*#counties .q8-9.active { fill:red; }*/
 
 
+#proximity-circle{
+    opacity: 0.4;
+}
+
 #proximity-circle .proximity-hidden{
     opacity: 0.0;
 }
@@ -323,6 +327,12 @@ if it's not present, don't show loader */
     font-size: 16px;
     color: #094cbf;
     margin-left: 100px;
+}
+
+.graphtitle{
+    font-size: 16px;
+    fill:#999;
+    font-weight:bold;
 }
 
 
