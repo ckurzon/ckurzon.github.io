@@ -26,8 +26,8 @@ BarVis = function(_parentElement, _data, _currentYear, _startFips, _eventHandler
         this.width = 350 - this.margin.left - this.margin.right,
         this.height = 300 - this.margin.top - this.margin.bottom;
 
-    this.hoverYOffset = -290;
-    this.hoverXOffset = -100;
+    this.hoverYOffset = -5;
+    this.hoverXOffset = -5;
 
     this.initVis();
 }
