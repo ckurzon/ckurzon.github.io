@@ -24,7 +24,7 @@ html, body{
 
 .circle{
     display:block;
-    fill: #514c76;
+    fill: #094cbf;
     /*opacity: 1;*/
 }
 circle:hover{
@@ -111,6 +111,12 @@ circle:hover{
     height: 15px;
     margin-left: 35px;
     border-left: 1px solid #999;
+}
+
+#county-name{
+    font-size: 30px;
+    margin-left: 100px;
+    color: white;
 }
 
 
@@ -211,20 +217,17 @@ path {
 .axis path {
     fill: none;
     stroke-width: 1px;
-    stroke: #666;
+    stroke: #999;
 }
 .axis .tick line{
-    stroke: #666;
+    stroke: #999;
 }
 
 .axis .tick text{
-    font-size: 12px;
-    stroke: #666;
-    stroke-fill: #666;
+    font-size: 14px;
+    stroke: #999;
+    stroke-fill: #999;
 }
-/*path:hover {*/
-    /*fill: red;*/
-/*}*/
 
 .d3-tip {
     line-height: 1;
@@ -247,12 +250,12 @@ svg {
     cursor: pointer;
 }
 .bar rect {
-    fill: #514c76;
+    fill: #094cbf;
 }
 
 .line {
     fill: none;
-    stroke: #514c76;
+    stroke: #094cbf;
     stroke-width: 2px;
 }
 .area {
@@ -285,21 +288,20 @@ if it's not present, don't show loader */
 /*}*/
 
 #counties .qNone-9 {fill:grey;}
-#counties .q0-9 { fill:#f7fbff; }
-#counties .q1-9 { fill:#deebf7; }
-#counties .q2-9 { fill:#c6dbef; }
-#counties .q3-9 { fill:#9ecae1; }
-#counties .q4-9 { fill:#6baed6; }
-#counties .q5-9 { fill:#4292c6; }
-#counties .q6-9 { fill:#2171b5; }
-#counties .q7-9 { fill:#08519c; }
-#counties .q8-9 { fill:#08306b; }
+#counties .q0f51c4 { fill:#0f51c4; }
+#counties .q073a92{ fill:#073a92; }
+#counties .q4681e6 { fill:#4681e6; }
+#counties .q6c9bec { fill:#6c9bec; }
+#counties .q2769d9 { fill:#2769d9; }
+#counties .qeaf1fe { fill:#eaf1fe; }
+#counties .q052356 { fill:#052356; }
+#counties .qa7c3f4 { fill:#a7c3f4; }
 
-#counties :hover {fill:grey;}
+/*#counties :hover {fill:grey;}*/
 
-#counties :hover {fill:yellow;}
+#counties :hover {fill: yellow;}
 
-#counties .active { fill:red; }
+#counties .active { fill: red; }
 
 /*#counties .q0-9.active { fill:red; }*/
 /*#counties .q1-9.active { fill:red; }*/
@@ -314,6 +316,12 @@ if it's not present, don't show loader */
 
 #proximity-circle .proximity-hidden{
     opacity: 0.0;
+}
+
+#toggle{
+    font-size: 16px;
+    color: #094cbf;
+    margin-left: 100px;
 }
 
 

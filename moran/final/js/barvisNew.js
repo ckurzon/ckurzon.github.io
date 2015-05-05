@@ -22,7 +22,7 @@ BarVis = function(_parentElement, _data, _currentYear, _startFips, _eventHandler
     this.fips = _startFips;
 
     // defines constants
-    this.margin = {top: 20, right:0, bottom: 80, left: 35},
+    this.margin = {top: 20, right:0, bottom: 80, left: 40},
         this.width = 350 - this.margin.left - this.margin.right,
         this.height = 300 - this.margin.top - this.margin.bottom;
     this.initVis();
@@ -75,16 +75,8 @@ BarVis.prototype.initVis = function(){
         .attr("dy", ".71em")
         .style("text-anchor", "end")
 
-    //this.tip = d3.tip()
-    //    .attr('class', 'd3-tip')
-    //    .offset([-10, 0])
-    //    .html(function(d) {
-    //        return "<strong>Snowfall</strong> <span style='color:red'>" + d.values.snow_fall + "</span>";
-    //    })
-
-    //this.svg.call( that.tip );
+   
     // filter, aggregate, modify data
-    //this.wrangleData(function(d){ return (d.state == "CO" && d.year == 2005);});
     this.wrangleData(that.fips,that.currentYear);
 
     // call the update method
@@ -100,10 +92,7 @@ BarVis.prototype.wrangleData= function(fips,year){
 
     // displayData should hold the data whiche is visualized
     this.displayData = this.filterAndAggregate(fips,year);
-    //// you might be able to pass some options,
-    //// if you don't pass options -- set the default options
-    //// the default is: var options = {filter: function(){return true;} }
-    //var options = _options || {filter: function(){return true;}};
+ 
 }
 
 
@@ -192,9 +181,9 @@ BarVis.prototype.updateVis = function(){
         .attr("y", -5)
         .attr("text-anchor", "middle")  
         .style("font-size", "16px") 
-        .style("color", "#ffffff")
+        .style("fill", "#999")
         .style("font-weight", "bold") 
-        .text("Monthly Snowfall in ______");
+        .text("Monthly Snowfall in " + this.currentYear);
 
 
     /*
@@ -221,9 +210,11 @@ BarVis.prototype.onSelectionChange = function (fips,year){
 
     /*this.wrangleData(function(d){
      return (fips == d.fips && year == d.year);});*/
-    this.fips = fips;
-    this.wrangleData(fips,year);
-    this.updateVis();
+    if (fips.length > 0) {
+        this.fips = fips;
+        this.wrangleData(fips,year);
+        this.updateVis();
+    }
 }
 
 

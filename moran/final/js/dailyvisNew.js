@@ -7,12 +7,12 @@ DailyVis = function(_parentElement, _dailyfall,_dailydepth, _currentYear, _event
     this.data = this.fall;
     this.eventHandler = _eventHandler;
     this.displayData = [];
-    this.fips = [23003, 23021,2185];
+    this.fips = [25025];
     this.year = _currentYear;
     this.month = "12";
 
     // TODO: define all constants here
-    this.margin = {top: 20, right: 20, bottom: 30, left: 30},
+    this.margin = {top: 20, right: 20, bottom: 30, left: 35},
         this.width =  350 - this.margin.left - this.margin.right,
         this.height = 300 - this.margin.top - this.margin.bottom;
     this.initVis();
@@ -139,15 +139,17 @@ DailyVis.prototype.updateVis = function(){
     this.svg.selectAll(".graphtitle")
       .remove() 
 
+    var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
     this.svg.append("text")
         .attr("class", "graphtitle")
         .attr("x", (this.width / 2))             
         .attr("y", -5)
         .attr("text-anchor", "middle")  
         .style("font-size", "16px") 
-        .style("color", "#ffffff")
+        .style("fill", "#999")
         .style("font-weight", "bold") 
-        .text("Daily Snowfall in ______");
+        .text("Daily Snowfall in " + months[this.month-1]);
 
 }
 
@@ -172,9 +174,11 @@ DailyVis.prototype.onSelectionChange = function (fips,year){
     var that = this;
 
     this.year = year; 
-    this.fips = fips;
-    this.wrangleData(this.fips);
-    this.updateVis();
+    if (fips.length > 0) {
+        this.fips = fips;
+        this.wrangleData(this.fips);
+        this.updateVis();
+    }
 }
 
 DailyVis.prototype.toggle= function(){
@@ -244,14 +248,17 @@ DailyVis.prototype.filterAndAggregate = function(fips){
 
     for (var i = 0; i <= 30; i++){
         for (var j = 0; j < snfls.length; j++) {
-            new_data[i] += ((snfls[j][i] > 0) ? snfls[j][i] : 0);
+            if (snfls[j][i])
+                new_data[i] += ((snfls[j][i] > 0) ? snfls[j][i] : 0);
+            else 
+                new_data[i] +=0;
         }
         new_data[i] = new_data[i]/snfls.length;
     }
 
     var res = [];
     new_data.map(function (d,i) {
-        obj = {"snowfall": d, "day": i+1};
+        obj = {"snowfall": (Math.round( d * 10 ) / 10), "day": i+1};
         res.push(obj);
     })
     return res;

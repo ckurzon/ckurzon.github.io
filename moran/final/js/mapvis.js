@@ -284,7 +284,7 @@ MapVis.prototype.initVis = function(){
         .attr("class", "legend");
 
     this.legend.append("rect")
-        .attr("x", 20)
+        .attr("x", 65)
         .attr("y", function(d, i){ return that.height*.75 - (i*that.legendRectHeight) - 2*that.legendRectHeight;})
         .attr("width", that.legendRectWidth)
         .attr("height", that.legendRectHeight)
@@ -292,7 +292,7 @@ MapVis.prototype.initVis = function(){
         //.style("opacity", 0.8);
 
     this.legend.append("text")
-        .attr("x", 50)
+        .attr("x", 90)
         .attr("y", function(d, i){ return that.height*.75 - (i*that.legendRectHeight) - that.legendRectHeight - 4;})
         .text(function(d, i){ return that.legend_labels[i]; });
 
@@ -321,13 +321,13 @@ MapVis.prototype.updateVis = function(){
     var that = this;
 
     this.counties.selectAll("path")
-        .style("fill", function(d) {
+        .attr("class", function(d) {
             var val = that.displayData.get(d.id);
             if (val != undefined) {
-                return that.colorpow(val).hex();
+                return "q" + ((that.colorpow(val).hex()).slice(1));
             }
             else{
-                return "grey";
+                return "qNone-9";
             }
         });
         /*.attr("class", function(d) {
@@ -563,7 +563,6 @@ MapVis.prototype.setProbeContent = function(d){
 
     var snowNotRecorded = that.displayData.get(d.id) == undefined;
     var fipsNotLocated = that.fipsToCountyMap.get(d.id) == undefined;
-
     var html = "<strong>" + ((fipsNotLocated) ? d.id : that.fipsToCountyMap.get(d.id)) + "</strong><br/>" +
         ((!snowNotRecorded) ? (parseFloat(that.displayData.get(d.id)).toFixed(2) +  " in") : "Not Recorded") + "<br/>" +
         "<span>" + that.currentYear + "</span>";

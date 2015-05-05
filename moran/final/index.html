@@ -68,8 +68,11 @@
         <!--SLIDER-->
         <!--<div id="slider7" class="col-sm-5" style="background-color: white">-->
 
-        <div id="slider-container" class="col-sm-5" style="background-color: white">
+        <div id="slider-container" class="col-sm-4" style="background-color: white">
             <input type="range" name="points" min="2005" max="2015" step="1" value="0" id="slider-time" >
+        </div>
+        <div id = "county-name" class = "col-sm-1">
+            Suffolk, MA
         </div>
 
     </div>
@@ -96,14 +99,14 @@
             </div>
             <!--DAILY LINES-->
             <div class="row">
-            <div class="toggle">
+            <div id = "toggle">
                 <label>Snowfall
                     <input type="radio" class="scale" name="scale" value="fall" checked="checked" onclick="toggle()">
                 </label>
                 <label>Snow Depth
                     <input type="radio" class="scale" name="scale" value="depth" id = "depth" onclick="toggle()">
                 </label>
-                </div>
+            </div>
                 <div id="line-container">
                     <svg width = "300" height = "350"></svg>
 
@@ -138,7 +141,7 @@
 
         //Preselect what is seen on start :)
         var current_year = 2005;
-        var startFips = [53035, 53033];
+        var startFips = [25025];
 
         //Visualizations
         var map_vis;
@@ -162,8 +165,18 @@
                 //arrays are by default expected to be extra parameters for an event trigger
                 //Need to pass it in as a single element to keep track of all fips
                 //Originally registered it as a list of parameters (not values)...
-                bar_vis.onSelectionChange(fipObj.values, current_year);
+               // bar_vis.onSelectionChange(fipObj.values, current_year);
                 daily_vis.onSelectionChange(fipObj.values,current_year);
+
+                var sourceCountyName = undefined;
+                if (fipObj.values[0]){
+                    sourceCountyName = fipsToCountyMap.get(fipObj.values[0]);
+                    var splitted = sourceCountyName.split(',');
+                    sourceCountyName = splitted[1] + ", " + splitted[0];
+                }
+                var fipsNotLocated = (sourceCountyName == undefined)
+
+                document.getElementById("county-name").innerHTML = ((fipsNotLocated) ? "None" : sourceCountyName)
             });
             // That's why this works (d is a single element preceding event object )
             $(MyEventHandler).bind("barClicked", function (event, d) {
