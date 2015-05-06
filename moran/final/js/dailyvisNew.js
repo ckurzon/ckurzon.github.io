@@ -172,7 +172,7 @@ DailyVis.prototype.updateVis = function(){
         .style("font-size", "16px") 
         .style("fill", "#999")
         .style("font-weight", "bold") 
-        .text("Daily Snowfall in " + months[this.month-1]);
+        .text("Average Daily Snowfall in " + months[this.month-1]);
 
 }
 
