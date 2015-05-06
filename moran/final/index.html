@@ -81,10 +81,18 @@
     </div>
 
     <div id="story-container" class="row">
+
+        <div id="cplaceholder1" class="col-sm-2">
+        </div>
+
         <p>
-        <object id="story" width=100% height="40" type="text/plain" data="" border="0" style="background-color: white">
+        <object id="story" class-"col-sm-8" width=40% height="40" type="text/plain" data="" border="0" style="background-color: black"
+        vertical-align: "middle" text = "white">
         </object>
         </p>
+
+        <div id="placeholder2" class="col-sm-2">
+        </div>
     </div>
 
     <!--VISUALIZATION (Managed with BOOTSTRAP)-->
@@ -206,6 +214,7 @@
         }
 
         function bar_line_update(fips,year){
+            console.log(fips);
             bar_vis.onSelectionChange(fips, year);
             daily_vis.onSelectionChange(fips,year);
 
