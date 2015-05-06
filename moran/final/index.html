@@ -306,10 +306,6 @@
             });
 
 
-        //TODO: Jay Update story mechanics
-        var storyObject = document.getElementById('story');
-        newText(storyObject, "2005", "1");
-
         //HELPERS
         /////////////////////////////////////////////////////////////////////////////////
 
@@ -340,6 +336,8 @@
             }
         }
 
+        var storyObject = document.getElementById('story');
+        
         function animate() {
             interval = setInterval(function () {
 
@@ -353,6 +351,8 @@
                 }
 
                 $('#slider-time').slider('setValue', current_year);
+
+                newText(storyObject, current_year.toString(), "1");
 
                 d3.select("#month").html("<span>" + "YEAR" + "</span>" + "' " + current_year);
                 map_vis.onSelectionChange(current_year);
