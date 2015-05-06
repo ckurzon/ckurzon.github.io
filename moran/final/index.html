@@ -197,14 +197,7 @@
             });
 
             loading_screen.finish();
-<<<<<<< HEAD
-            storyline(2011);
-            
         }
-=======
-            storyline(2010);
-
->>>>>>> 21cbbc5fafe4f9f6ba6d4c8338f08e5e2a969a62
 
         function storyline (year){
             var data = storyline_data.filter(function (d){return d.year == year});
@@ -333,6 +326,7 @@
                 d3.select("#month").html("<span>" + "YEAR" + "</span>" + "' " + current_year);
                 map_vis.onSelectionChange(current_year);
 
+                storyline(current_year);
                 if ( current_year == 2015 ){
                     isPlaying = false;
                     d3.select("#play").classed("pause",false).attr("title","Play animation");
