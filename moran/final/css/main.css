@@ -11,6 +11,14 @@ html, body{
     font-size: 30px;
     color: #1a1a1a;
 }
+
+#story{
+    font-size: 16px;
+    color: white;
+    margin-left: 150px;
+    margin-top: 20px;
+    vertical-align: middle;
+}
 .land {
     fill: #f7f7f7;
     stroke: #ccc;
@@ -117,7 +125,8 @@ html, body{
 }
 
 #county-name{
-    /*font-size: 30px;*/
+    font-size: 25px;
+    margin-top: 20px;
     /*margin-left: 100px;*/
     color: white;
 }
