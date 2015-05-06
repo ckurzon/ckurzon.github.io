@@ -355,6 +355,13 @@ if it's not present, don't show loader */
 }
 
 
+@font-face {
+    font-family: SnowText;
+    src: url(FROSW___.TTF);
+}
+.snowText { font-family: SnowText }
+
+
 
 
 
