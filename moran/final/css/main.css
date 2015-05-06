@@ -7,6 +7,12 @@ html, body{
     min-width: 960px;
 }
 
+#story-container{
+    vertical-align: middle;
+}
+#story{
+    color: #1a1a1a;
+}
 #splash-title{
     font-size: 30px;
     color: #1a1a1a;
