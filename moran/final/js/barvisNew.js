@@ -22,7 +22,7 @@ BarVis = function(_parentElement, _data, _currentYear, _startFips, _eventHandler
     this.fips = _startFips;
 
     // defines constants
-    this.margin = {top: 20, right:0, bottom: 80, left: 40},
+    this.margin = {top: 20, right:0, bottom: 80, left: 45},
         this.width = 350 - this.margin.left - this.margin.right,
         this.height = 300 - this.margin.top - this.margin.bottom;
 
@@ -264,7 +264,7 @@ BarVis.prototype.filterAndAggregate = function(fips,year){
 BarVis.prototype.setProbeContent = function(d){
 
     var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    var html =  "<strong>" + months[(parseInt(d.key))-1] + "</strong>" + "<br/>" + d.values.snow_fall + "\"";
+    var html =  "<strong>" + months[(parseInt(d.key))-1] + "</strong>" + "<br/>" + (Math.round( d.values.snow_fall * 10 ) / 10) + "\"";
     this.probe
         .html( html );
 }

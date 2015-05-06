@@ -74,14 +74,15 @@
                    data-slider-tooltip="hide">
             April 2015
         </div>
-
-        <div id="county-name" class="col-sm-2">
-            Suffolk, MA
-        </div>
     </div>
 
-    <div id="story-container" class="row">
-        <div id="story" width=60% height="40" border="0" style="background-color: black">
+    <div class = "row">
+        <div id="story-container" class = "col-sm-9">
+            <div id="story" width=60% height="40" border="0" style="background-color: black">
+            </div>
+        </div> 
+        <div id="county-name" class="col-sm-3">
+            Suffolk, MA
         </div>
     </div>
 
@@ -122,11 +123,6 @@
         </div>
     </div>
 
-
-    <!--FOOTER-->
-    <div id="footer-container">
-        Customize Footer to Mention Authors and Acknowledgements...
-    </div>
 </div>
 
 <div class="snow-background">
@@ -334,6 +330,8 @@
                     isPlaying = false;
                     d3.select("#play").classed("pause", false).attr("title", "Play animation");
                     clearInterval(interval);
+                    $('#story').hide();
+                    return;
                 }
 
                 $('#slider-time').slider('setValue', current_year);
@@ -344,15 +342,9 @@
 
                 year_string = current_year.toString();
                 storyObject.innerHTML = story_text[year_string];
+                $('#story').show();
 
-                if ( current_year == 2015 ){
-                    isPlaying = false;
-                    d3.select("#play").classed("pause", false).attr("title", "Play animation");
-                    clearInterval(interval);
-                    return;
-                }
-
-            }, 4000);
+            }, 4500);
         }
 
     });
