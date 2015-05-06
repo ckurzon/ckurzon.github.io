@@ -47,7 +47,7 @@
 <div id="container">
     <!--TITLE-->
     <div id="title-container" class="row">
-        <h1 id="title">The More You Snow!</h1>
+        <h1 id="title" class="snowText">The More You Snow!</h1>
     </div>
 
 
@@ -147,7 +147,7 @@
 
     var loading_screen = window.pleaseWait({
         logo: "images/s1.png",
-        loadingHtml: "<div class = 'snow-background'></div> <p class ='splash-title'> The More You Snow </p><br/><p class = 'splash-subtitle'>CS171 Final Project by<br/>Andrew Moran, Chloe Kurzon, and Jay Chakravarty </p><div class='sk-spinner sk-spinner-wave'><div class='sk-rect1'></div><div class='sk-rect2'></div><div class='sk-rect3'></div><div class='sk-rect4'></div><div class='sk-rect5'></div></div>"
+        loadingHtml: "<div class = 'snow-background'></div> <p class ='splash-title snowText'> The More You Snow </p><br/><p class = 'splash-subtitle'>CS171 Final Project by<br/>Andrew Moran, Chloe Kurzon, and Jay Chakravarty </p><div class='sk-spinner sk-spinner-wave'><div class='sk-rect1'></div><div class='sk-rect2'></div><div class='sk-rect3'></div><div class='sk-rect4'></div><div class='sk-rect5'></div></div>"
     });
 
     var daily_vis;
@@ -347,6 +347,9 @@
                 current_year++;
                 if (current_year == 2016) {
                     current_year = 2005;
+                    isPlaying = false;
+                    d3.select("#play").classed("pause", false).attr("title", "Play animation");
+                    clearInterval(interval);
                 }
 
                 $('#slider-time').slider('setValue', current_year);
