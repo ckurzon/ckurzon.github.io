@@ -502,8 +502,10 @@ MapVis.prototype.UpdateSelectedCounties = function() {
         });
 
 
-    if (d3.event.sourceEvent == !undefined) {
-        d3.event.sourceEvent.stopPropagation();
+    if (d3.event != undefined){
+        if (d3.event.sourceEvent == !undefined) {
+            d3.event.sourceEvent.stopPropagation();
+        }
     }
 
     $(that.eventHandler).trigger("selectionChanged", {values: that.selectedCountyFips});

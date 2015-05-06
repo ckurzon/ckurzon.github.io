@@ -7,6 +7,12 @@ html, body{
     min-width: 960px;
 }
 
+#story-container{
+    vertical-align: middle;
+}
+#story{
+    color: #1a1a1a;
+}
 #splash-title{
     font-size: 30px;
     color: #1a1a1a;
@@ -353,6 +359,13 @@ if it's not present, don't show loader */
     font-size: 20px;
     fill:white;
 }
+
+
+@font-face {
+    font-family: SnowText;
+    src: url(FROSW___.TTF);
+}
+.snowText { font-family: SnowText }
 
 
 

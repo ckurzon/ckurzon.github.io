@@ -47,7 +47,7 @@
 <div id="container">
     <!--TITLE-->
     <div id="title-container" class="row">
-        <h1 id="title">The More You Snow!</h1>
+        <h1 id="title" class="snowText">The More You Snow!</h1>
     </div>
 
 
@@ -81,10 +81,18 @@
     </div>
 
     <div id="story-container" class="row">
+
+        <div id="cplaceholder1" class="col-sm-2">
+        </div>
+
         <p>
-        <object id="story" width=100% height="40" type="text/plain" data="" border="0" style="background-color: white">
+        <object id="story" class-"col-sm-8" width=40% height="40" type="text/plain" data="" border="0" style="background-color: black"
+        vertical-align: "middle" text = "white">
         </object>
         </p>
+
+        <div id="placeholder2" class="col-sm-2">
+        </div>
     </div>
 
     <!--VISUALIZATION (Managed with BOOTSTRAP)-->
@@ -139,7 +147,7 @@
 
     var loading_screen = window.pleaseWait({
         logo: "images/s1.png",
-        loadingHtml: "<div class = 'snow-background'></div> <p class ='splash-title'> The More You Snow </p><br/><p class = 'splash-subtitle'>CS171 Final Project by<br/>Andrew Moran, Chloe Kurzon, and Jay Chakravarty </p><div class='sk-spinner sk-spinner-wave'><div class='sk-rect1'></div><div class='sk-rect2'></div><div class='sk-rect3'></div><div class='sk-rect4'></div><div class='sk-rect5'></div></div>"
+        loadingHtml: "<div class = 'snow-background'></div> <p class ='splash-title snowText'> The More You Snow </p><br/><p class = 'splash-subtitle'>CS171 Final Project by<br/>Andrew Moran, Chloe Kurzon, and Jay Chakravarty </p><div class='sk-spinner sk-spinner-wave'><div class='sk-rect1'></div><div class='sk-rect2'></div><div class='sk-rect3'></div><div class='sk-rect4'></div><div class='sk-rect5'></div></div>"
     });
 
     var daily_vis;
@@ -190,7 +198,18 @@
                 //arrays are by default expected to be extra parameters for an event trigger
                 //Need to pass it in as a single element to keep track of all fips
                 //Originally registered it as a list of parameters (not values)...
-                bar_line_update(fipObj.values, current_year);
+                if (current_year == 2015){
+                    bar_line_update(fipObj.values, current_year,1);
+                }
+                else if (current_year == 2005)
+                    {
+                        bar_line_update(fipObj.values, current_year,12);
+                    }
+                else {
+                    bar_vis.onSelectionChange(fipObj.values, year);
+                    daily_vis.onSelectionChange(fipObj.values,year);
+                }
+                update_county_name(fipObj.values);
             });
             // That's why this works (d is a single element preceding event object )
             $(MyEventHandler).bind("barClicked", function (event, d) {
@@ -203,13 +222,16 @@
 
         function storyline (year){
             var data = storyline_data.filter(function (d){return d.year == year});
-            bar_line_update(data[0].fips,year);
+            bar_line_update(data[0].fips,year,data[0].month);
             map_vis.storyLine(data[0].fips);
+            update_county_name(data[0].fips);
         }
 
-        function bar_line_update(fips,year){
+        function bar_line_update(fips,year,month){
             bar_vis.onSelectionChange(fips, year);
-            daily_vis.onSelectionChange(fips,year);
+            daily_vis.onBarClicked(fips,month,year);
+        }
+        function update_county_name (fips){
 
             //update the display with the name of the county selected
             var sourceCountyName = undefined;
@@ -325,6 +347,9 @@
                 current_year++;
                 if (current_year == 2016) {
                     current_year = 2005;
+                    isPlaying = false;
+                    d3.select("#play").classed("pause", false).attr("title", "Play animation");
+                    clearInterval(interval);
                 }
 
                 $('#slider-time').slider('setValue', current_year);
