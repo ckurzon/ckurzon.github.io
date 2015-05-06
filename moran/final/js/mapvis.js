@@ -510,6 +510,19 @@ MapVis.prototype.UpdateSelectedCounties = function() {
 
 }
 
+MapVis.prototype.storyLine = function(fips){
+    /*this.counties.selectAll("path")
+        .each(d3.select(this).classed("active"),false);
+*/
+     this.counties.selectAll("path")
+        .each(function (d) { 
+            for (var i = 0; i < fips.length; i ++){
+            if (d.id == fips[i]) {
+                d3.select(this).classed("active",true)
+                }
+            }
+        });
+}
 
 //Pop-up
 ///////////////////////////////////////////////////////////////

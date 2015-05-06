@@ -117,8 +117,8 @@ html, body{
 }
 
 #county-name{
-    font-size: 30px;
-    margin-left: 100px;
+    /*font-size: 30px;*/
+    /*margin-left: 100px;*/
     color: white;
 }
 
@@ -328,6 +328,34 @@ if it's not present, don't show loader */
     fill:#999;
     font-weight:bold;
 }
+
+
+#play{
+    width: 53px;
+    height: 53px;
+    background-image: url(../images/play.png);
+    border-radius: 5px;
+    margin-left: 20px;
+    cursor: pointer;
+}
+
+#play:hover{
+    background-position: 0 -53px;
+}
+
+#play.pause{
+    background-image: url(../images/pause.png);
+}
+
+
+
+#col-sm-6 .sliderRange{
+    font-size: 20px;
+    fill:white;
+}
+
+
+
 
 
 
